@@ -1,0 +1,19 @@
+https://github.com/alibaba/jstorm/commit/6dc60b06a0a8880cf37c88a462a213737703be80
+Integer null check
+
+PMD, InteliJ, FindBugs
+
+Logger logger = Logger.getLogger(OkHttpClient.class.getName()); https://github.com/square/okhttp/commit/40c2e6aec09d139a4e96b45856020a5b324b01ef
+
+
+java backward compatibility
+https://github.com/jhy/jsoup/commit/bb16e0693819afb821bce6943d8cbd178266a63e
+
+https://github.com/jankotek/mapdb/commit/e4542a9b0e7907a11cab7a98467a770532a87e09#diff-8fc6e9f1a6ae1cbcaf5979b20236263f final parameterless
+
+* import import javax.annotation.processing.*;		 +import javax.annotation.processing.AbstractProcessor;
+ +import javax.annotation.processing.ProcessingEnvironment;
+ +import javax.annotation.processing.Processor;
+ +import javax.annotation.processing.RoundEnvironment; 
+
+ https://github.com/google/auto/commit/a1d0a8f9e1f9a1f3f9867a0361f8424ac4d3d649

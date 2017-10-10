@@ -1,0 +1,14 @@
+@@ -315,36 +315,6 @@
+int initprocesstree_sysdep
+    (ProcessTree_T **reference) {
+        mach_port_deallocate(mytask,
+          task);
+    }
+}
+- if (task_for_pid(mytask, pt[i].pid,
+-      &task) == KERN_SUCCESS) {
+-   mach_msg_type_number_t   count;
+-   task_basic_info_data_t   taskinfo;
+-   thread_array_t           threadtable;
+-   unsigned int             threadtable_size;
+-   thread_basic_info_t      threadinfo;

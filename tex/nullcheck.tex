@@ -1,0 +1,27 @@
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+
+@@ -478,9 +478,9 @@ private void syncMetaFromCache(String topologyId, 
+    TopologyMetricContext context)
+      private void syncMetaFromRemote(String topologyId, TopologyMetricContext context) {
+          try {
+              int memSize = context.getMemMeta().size();
+ |||-            int zkSize = (Integer) stormClusterState.get_topology_metric(topologyId);|||
+ |||+            Integer zkSize = (Integer)stormClusterState.get_topology_metric(topologyId);|||
+  
+ |||-            if (memSize != zkSize) {|||
+ |||+            if (zkSize != null  && memSize != zkSize.intValue()) {|||
+                  ConcurrentMap<String, Long> memMeta = context.getMemMeta();
+                  for (MetaType metaType : MetaType.values()) {
+                      List<MetricMeta> metaList = metricQueryClient.getMetricMeta(
+                          clusterName, topologyId, metaType);
+ @@ -908,4 +908,4 @@ public String toString() {
+          public Assignment newAssignment;
+          public Map<Integer, String> task2Component;
+      }
+ -}
+ +} 
+
+\end{lstlisting}
+\caption{JStorm commit \#6dc60b06a0a8880cf37c88a462a213737703be80\label{fig:null}}
+\end{figure*}

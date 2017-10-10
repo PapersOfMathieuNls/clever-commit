@@ -1,0 +1,12 @@
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+@@ -387,8 +387,31 @@ 
+       /*
+       * Set all bytes between {@code startOffset} and {@code endOffset} to zero.
+       * Area between offsets must be ready for write once clear finishes.
+       */
+ -    public abstract void clear(long startOffset, long endOffset);
+ +    public abstract void clear(|||final||| long startOffset, |||final||| long endOffset);
+  \end{lstlisting}
+\caption{Mapdb commit \#e4542a9b0e7907a11cab7a98467a770532a87e09\label{fig:final}}
+\end{figure*}

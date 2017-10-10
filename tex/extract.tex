@@ -1,0 +1,25 @@
+\begin{algorithm}
+ \KwData{$Changeset[]$ changesets\;
+ $Block[]$ prior\_blocks\;
+ }
+ \KwResult{Up to date blocks of the systems}
+ \For{$i \leftarrow 0$ \KwTo$size\_of~changesets$}{
+    Block[] blocks $\leftarrow$ $extract\_blocks(changesets)$\;
+    \For{$j \leftarrow 0$ \KwTo$size\_of~blocks$}{
+       write $blocks[j]$\;
+    }
+ }
+
+ \SetKwProg{myproc}{Function}{ $~extract\_blocks(Changeset~cs)$}{}
+   \myproc{{}}{
+
+   \uIf{$cs~is~unbalanced~right$}{$cs \leftarrow expand\_left(cs)$\;}
+
+   \ElseIf{$cs~is~unbalanced~left$}{$cs \leftarrow expand\_right(cs)$\;}
+
+   \nl\KwRet$txl\_extract\_blocks(cs)$\;
+   }
+
+
+ \caption{Overview of the Extract Blocks Operation\label{alg:extract}}
+\end{algorithm}

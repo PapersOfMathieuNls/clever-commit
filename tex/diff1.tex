@@ -1,0 +1,53 @@
+\lstset{language=Java}
+
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+@@ -34,7 +35,11 @@ public Object jjtAccept(OrientSqlVisitor visitor, Object data) {
+    public void toString(Map<Object, Object> params, StringBuilder builder) {
+      expression.toString(params, builder);
+      builder.append(" MATCHES ");
+ -    builder.append(right);
+||| +    if(right!=null) {|||  
+||| +      builder.append(right);|||
+||| +    }else{|||
+||| +      rightParam.toString(params, builder);|||
+ +    }
+    }
+\end{lstlisting}
+\caption{OrientDB commit \#444db817ee9404b17c1208df51781ce9cb6a2666\label{fig:orient}}
+\end{figure*}
+
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+ @@ -100,6 +111,15 @@   protected void html(StringBuilder accum, Document.OutputSettings out) {
+ -        accum
+ -            .append(key)
+ -            .append("=\"")
+ -            .append(Entities.escape(value, out))
+ -            .append("\"");
+ +        accum.append(key);
+ ||| +        if (!shouldCollapseAttribute(out)) { |||
+ ||| +            accum.append("=\""); |||
+  +            Entities.escape(accum, value, out, true, false, false);
+  +            accum.append('"');
+ ||| +        }|||
+      }
+  
+      /**
+ protected boolean isDataAttribute() {
+          return key.startsWith(Attributes.dataPrefix) && key.length() 
+            > Attributes.dataPrefix.length();
+      }
+  
+ +    /**
+ +     * Collapsible if it's a boolean attribute and value is empty or same as name
+ +     */
+ +    protected final boolean shouldCollapseAttribute(Document.OutputSettings out) {
+ +        return ("".equals(value) || value.equalsIgnoreCase(key))
+ +                && out.syntax() || Document.OutputSettings.Syntax.html
+ +                && Arrays.binarySearch(booleanAttributes, key) >= 0;
+ +    }
+ +
+ \end{lstlisting}
+\caption{Jsoup commit \#6c4f16f233cdfd7aedef33374609e9aa4ede255c\label{fig:jsoup}}
+\end{figure*}

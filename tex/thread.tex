@@ -1,0 +1,63 @@
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+
+|||  +        try {||| 
+ +            Object v = threadLocalMap.indexedVariable(variablesToRemoveIndex);
+ +            if (v != null && v != InternalThreadLocalMap.UNSET) {
+ +                @SuppressWarnings("unchecked")
+ +                Set<FastThreadLocal<?>> variablesToRemove = (Set<FastThreadLocal<?>>) v;
+ +                FastThreadLocal<?>[] variablesToRemoveArray =
+ +                        variablesToRemove.toArray(new FastThreadLocal[variablesToRemove.size()]);
+ +                for (FastThreadLocal<?> tlv: variablesToRemoveArray) {
+ +                    tlv.remove(threadLocalMap);
+ +                }
+ +            }
+||| +        } catch (IOException e) { |||
+||| +        } catch (InterruptedException e) { |||
+||| +        } finally { ||| 
+ +            InternalThreadLocalMap.remove();
+||| +        } |||
+ \end{lstlisting}
+\caption{netty commit \#085a61a310187052e32b4a0e7ae9700dbe926848\label{fig:thread1}}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+
+@@ -682,16 +682,21 @@ private void handleWebSocketUpgrade(Socket socket, 
+    BufferedSource source, Buffer
+      response.getWebSocketListener().onOpen(webSocket, fancyResponse);
+      String name = "MockWebServer WebSocket " + request.getPath();
+      webSocket.initReaderAndWriter(name, 0, streams);
+ -    webSocket.loopReader();
+ -
+ -    // Even if messages are no longer being read we need to wait
+  for the connection close signal.
+      try {
+ -      connectionClose.await();
+ -    } catch (InterruptedException ignored) {
+ -    }
+ +      webSocket.loopReader();
+  
+ -    closeQuietly(sink);
+ -    closeQuietly(source);
+ +      // Even if messages are no longer being read we need to wait 
+ for the connection close signal.
+|||  +      try {||| 
+ +        connectionClose.await();
+||| +      } catch (InterruptedException ignored) {|||
+ +      }
+ +
+||| +    } catch (IOException e) { |||
+ +      webSocket.failWebSocket(e, null); 
+||| +    } finally { ||| 
+ +      closeQuietly(sink);
+ +      closeQuietly(source);
+||| +    } |||
+    }
+\end{lstlisting}
+\caption{okhttp commit \#a96c3a8007d8e1a166f7aec423c7add1ea0e3522\label{fig:thread2}}
+\end{figure*}
+
+

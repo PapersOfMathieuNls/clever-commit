@@ -1,0 +1,15 @@
+\begin{figure*}
+\begin{lstlisting}[moredelim={[is][\color{red}]{|||}{|||}}]
+
+@@ -178,7 +178,7 @@ static String getCharsetFromContentType(String contentType) {
+          if (m.find()) {
+              String charset = m.group(1).trim();
+              charset = charset.replace("charset=", "");
+||| -            if (charset.isEmpty()) return null;|||
+||| +            if (charset.length() == 0) return null;|||
+              try {
+                  if (Charset.isSupported(charset)) return charset;
+                  charset = charset.toUpperCase(Locale.ENGLISH);
+\end{lstlisting}
+\caption{Jsoup commit \#bb16e0693819afb821bce6943d8cbd178266a63e\label{fig:backward}}
+\end{figure*}
