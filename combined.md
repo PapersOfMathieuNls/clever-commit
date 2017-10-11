@@ -43,15 +43,15 @@ Despite the recent advances in the field, the literature shows that many existin
 
 In this paper, we propose an approach that adresses these challenges whithin the framework of ultra-large repositories at Ubisoft.
 
-Ubisoft, one of world's largest video game development companies, specializes in the design and implementation of high-budget video games. 
+Ubisoft, one of the world's largest video game development companies, specializes in the design and implementation of high-budget video games. 
 Such high-budget video games involve thousands of highly qualified personels from various fields (developers, artists, management, marketing, ...).
 To give the reader a grasp over the actual size of such software projects, the final product can contain millions of files and hundreds of thousands of commits.   
-Furthermore, several high-budget games are under development at the same time by 8,000 developers scatered accross the locations on six continents. 
+Furthermore, several high-budget games are under development at the same time by 8,000 developers scatered accross the 29 locations on six continents. 
 
 Our approach named MISFIRE (MetrIcS and clone detection for Fault Interception and Removing in ultra-large rEpositories) leverages three decades of code history in a cross-projects manner with the aims to automatically detecte and propose faults correction before they reach the central software repository. 
 More specifically, it uses a combination of well-known code metrics to build statistical models in order to prevent faults insertion. In addition to these metrics, we also use an in-house clone detector that extracts code blocks from incoming commits and compare them to those of known defect-introducing commits. Finally, using the fix used to fix past defects, we are able to provide a solution, in the form of a contextualized diff, to the developer that would remove the fault. A contextualized diff is a diff that is tempered with to match the current workspace of the developer in terms of variable types and names.
 
-This novel approach performs in the same ranges as state-of-the-art approaches such as Code Guru when it comes to defect introduction detection. Indeed, we are able to detect defects introduction with a 71% precision and a 70% recall.
+This novel approach slightly outperforms state-of-the-art approaches such as Code Guru [@Rosen2015] when it comes to defect introduction detection. Indeed, we are able to detect defects introduction with a 71% precision and a 70% recall.
 In addition we ask in-house experts to manually evaluat the quality of the fix we propose to remove the faults from the current code submission. 
 More than 62% of the analyzed proposed fixes were judged highly relevant and another 12% were classified as relevant. 
 Overall, 74% of the proposed fixes help developers toward the craft of an actual fix.
@@ -61,6 +61,7 @@ The remaining parts of this paper are organized as follows. In Section \ref{sec:
 Then, Sections \ref{sec:threats} and \ref{sec:conclusion} present the threats to validity and a conclusion accompanied with future work.
 
 # Related Work {#sec:relwork}
+
 The work most related to ours come from two main areas, work that aims to predict future defects in files, modules and changes and work that aims to propose or generate patches for buggy software.
 
 ## File, Module and Risky Change Prediction
@@ -120,7 +121,31 @@ Once the project dependency graph is extracted, we use a clustering algorithm to
 
 To build our database of code blocks that are related to defect-commits and fix-commits, we first need to identify the respective commits. Then, we extract the relevant blocks of code from the commits.
 
-**Extracting Commits:** misfire listens to bug (or issue) closing events happening on the project tracking system. Every time an issue is closed, misfire retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). Retrieving fix-commits, however, is known to be a challenging task [@Wu2011]. This is because the link between the project tracking system and the code version control system is not always explicit. In an ideal situation, developers would add a reference to the issue they work on inside the description of the commit. However, this good practice is not always followed. To make the link between fix-commits and their related issues, we turn to a modified version of the back-end of commit-guru [@Rosen2015]. Commit-guru is a tool, developed by Rosen _et al._  [@Rosen2015] to detect _risky commits_. In order to identify risky commits, Commit-guru builds a statistical model using change metrics (i.e.,  amount of lines added, amount of lines deleted, amount of files modified, etc.) from past commits known to have introduced defects in the past.
+**Extracting Commits:** misfire listens to bug (or issue) closing events happening on the project tracking system. Every time an issue is closed, misfire retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). Retrieving fix-commits, however, is known to be a challenging task [@Wu2011]. This is because the link between the project tracking system and the code version control system is not always explicit. In an ideal situation, developers would add a reference to the issue they work on inside the description of the commit. However, this good practice is not always followed. To make the link between fix-commits and their related issues we implemented the SZZ algorithm [@Kim2006c]. In addition to the SZZ algorithm, we build a statistical model using the following code change metrics:
+- la: lines added
+- ld: lines deleted
+- nf: Number of modified files
+- ns: Number of modified subsystems
+- nd: number of modified directories
+- en: distriubtion of modified code across each file
+- lt: lines of code in each file (sum) before the commit
+- ndev: the number of developers that modifed the files in a commit
+- age: the average time interval between the last and current change
+- exp: number of changes made by author previously
+- rexp: experience weighted by age of files ( 1 / (n + 1))
+- sexp: changes made previous by author in same subsystem
+- loc: Total modified LOC across all files
+- nuc: number of unique changes to the files
+
+It already exists open-source implementation of such a system developed by Rosen _et al._  [@Rosen2015]
+
+
+ More specifically, we ported a Python version of the SZZ algorithm developed by Rosen _et al._  [@Rosen2015] in GoLang for performances and accuracy reasons.
+
+
+
+
+ we turn to a modified version of the back-end of commit-guru [@Rosen2015]. Commit-guru is a tool, developed by Rosen _et al._  [@Rosen2015] to detect _risky commits_. In order to identify risky commits, Commit-guru builds a statistical model using change metrics (i.e.,  amount of lines added, amount of lines deleted, amount of files modified, etc.) from past commits known to have introduced defects in the past.
 
 Commit-guru's back-end has three major components: ingestion, analysis, and prediction. We reuse the ingestion and the analysis part for misfire. The ingestion component is responsible for ingesting (i.e., downloading) a given repository.
 Once the repository is entirely downloaded on a local server, each commit history is analysed. Commits are classified using the list of keywords proposed by Hindle *et al.* [@Hindle2008]. Commit-guru implements the SZZ algorithm [@Kim2006c] to detect risky changes, where it performs the SCM blame/annotate function on all the modified lines of code for their corresponding files on the fix-commit's parents. This returns the commits that previously modified these lines of code and are flagged as the defect introducing commits (i.e., the defect-commits). Prior work showed that commit-guru is effective in identifying defect-commits and their corresponding fixing commits [@Kamei2013a] and the SZZ algorithm, used by commit-guru, is shown to be effective in detecting risky commits [@Kamei2013; @Rosen2015]. Note that we could use a simpler and more established approach such as Relink [@Wu2011] to link the commits to their issues and re-implement the classification proposed by Hindle *et al.* [@Hindle2008] on top of it. However, commit-guru has the advantage of being open-source, making it possible to modify it to fit our needs by fine-tuning its performance.
@@ -183,6 +208,8 @@ Therefore, misfire is applicable at the beginning of every
 project. The only requirement is to use a dependency manager. 
 
 ## Analysing New Commits Using Pre-Commit Hooks {#sec:online}
+
+## Finding potential fixes for faults  {#sec:online}
 
 Each time a developer makes a commit, misfire intercepts it using a pre-commit hook,  extracts the corresponding code block (in a similar way as in the previous phase), and compares it to the code blocks of historical defect-commits. If there is a match then the new commit is deemed to be risky. A threshold $\alpha$ is used to assess the extent beyond which two commits are considered similar. The setting of $\alpha$ is discussed in the case study section.
 
