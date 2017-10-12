@@ -94,34 +94,68 @@ Figures \ref{fig:misfire1}, \ref{fig:misfire3} and \ref{fig:misfire2} show an ov
 
 In the first process (Figures \ref{fig:misfire1} and \ref{fig:misfire3}), misfire manages events happening on project tracking systems to extract defect-introducing commits and commits that provided the fixes. For simplicity, in the rest of this paper, we refer to commits that are used to fix defects as _fix-commits_. 
 We use the term _defect-commit_ to mean a commit that introduces a defect. In the second phase, misfire analyses the developer's new commits before they reach the central repository to detect potential risky commits (commits that may introduce bugs). 
-
+In addition, MISFIRE proposes potential fixes mined from the all the repositories within the organization.
+Moreover, the fixes are transformed to match the actual workspace of the developer by means of adpating variable names, indentation and overall code structure.
 
 \input{tex/approach}
 
-The project tracking component of misfire listens to bug (or issue) closing events of major open-source projects (currently, misfire is tested with 42 large projects). These projects share many dependencies. Projects can depend on each other or common external tools and libraries. We perform project dependency analysis to identify groups of highly-coupled projects. 
+The project tracking component of misfire listens to bug (or issue) closing events of major open-source projects (currently, misfire is tested with 12 large projects within Ubisoft). These projects share many dependencies that are both internal and external. We perform project dependency analysis to identify groups of highly-coupled projects with the aim to be able to transfert defect learning from one project to another similar project within the organization. 
+Transfering defects learning from projects to projects is a challenging task [@Nam2013], and, as shown in our experiments (Section \ref{sec:exp}) this adhoc metric give us statisfactory results. 
 
-In the second process (Figure \ref{fig:misfire2}), misfire identifies risky commits within each group to increase the chances of finding risky commits caused by project dependencies. 
-For each project group, we extract code blocks from defect-commits and fix-commits.  
-The extracted code blocks are saved in a database that is used to identify risky commits before they reach the central repository. 
-For each match between a risky commit and a _defect-commit_, we pull out from the database the corresponding _fix-commit_ and present it to the developer as a potential way to improve the commit content. 
-These phases are discussed in more detail in the upcoming subsections.
+In the second process (Figure \ref{fig:misfire2}), MISFIRE intercepts incoming commit before they leave developers' workstation by means of a pre-commit hook. 
+A pre-commit hook is a script that executes itself at commit-time.
+Pre-commit hooks are custom scripts set to fire off when certain important actions of the versioning process occur.
+There are two groups of hooks: client-side and server-side. Client-side hooks are triggered by operations such as committing and merging, whereas server-side hooks run on network operations such as receiving pushed commits. These hooks can be used for all sorts of reasons such as checking compliance with coding rules or automatic runs of unit test suites. The pre-commit hook runs before the developer specifies a commit message.
+At Ubisoft, several actions are undertook at commit-time.
+For example, one have to refer which task or issue is being addressed by the commit at hand, specify which reviewers reviewed the commit at hand if it was done during a pair-programming session and so on.
+We seamlessly intergrate MISFIRE with this already existing process.
+First, we extract the block of code modifed by the developer and compute the metrics representing the commit at hand. 
+The metrics are exhaustively described in section \ref{sec:offline}.
+Using the resulting vectore (step 4) we classify the commit as _risky_ or _non-risky_. 
+A _risky_ commit is a commit that is likely to introduce a defect while a _non-risky_ commit is classified as sane.
+Note that false positives (sane commit classified as _risky_) and false negatives (commit introducing a defect classified as _non-risky_) are present in this step.
+In section \ref{sec:exp}, we report these results and explain how we favor precision (i.e. reduce the amount of false-positives) over recall (i.e. reduce the amount of false-negative) to create a sense of trust between developers and MISFIRE. 
+We report on this particular aspect in section \ref{sec:threats}.
+If, in step 4 (classification) the commit is classified as _non-risky_, then the process stops and the commit is allowed to be transfered from the developer's workstation to the central repository.
+In the case of a _risky_ classification, the process continues with further analyses. 
+We first start by normalizing and formatting blocks of modified and compares them to the known defect-introducing commits present in the currated cluster by using text-based type 2 and type 3 clone detection.
+The cluster are said to be currated because we collect usage statics when MISFIRE proposes a contextualized fix to the developer. If, the developer does not use the fix the pertinence score ($p-score$) of the fix is reduced and we only propose fixes that have a $p-score >\alpha$. $\alpha$ is a live metric that management teams can adjust at any time without the need to rebuild statistical models.
+In addition $\alpha$ is automatically adjusted in a nightly fashion based in the usage statistics of the day before.
+Finally, $\alpha$ can be different across projects, teams and even individual developers.
+In step 7, we adapt the matchin fixes to the actual context of the developer by modifying indentation depth and variable name in an effort to reduce context switching [@Code; @Danny1997; @Altmann2004].
+Finally, depending on the similarity several process can be engaged.
+For example, if the similarity between the commit at hand and known defect-introducing commit in the same projects cluster is $S>80\%$ then, we perform a hard reject of the commit while suggesting how to improve it. 
+If the similarity is over 50%, then we perform a soft-reject where the developers would have to seek an aditional review before being able to submit the commit to the central repository.
+Finally, if the similarity is over 30%, then we accept the commit and suggest potential improvements throught our contextualized fixes.
+As for $\alpha$ these thresholds for $S$ can be different by projects, teams and individuals and are manually and automatically adjustable.
+
+In the upcoming subsections, we describe each steps in detail.
 
 ## Clustering Project Repositories {#sec:clustering}
 
-We cluster projects according to their dependencies.  The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:misfire3}. Graph databases use graph structures as a way to store and query information.  In our case,  a node corresponds to a project that is connected to other projects on which it depends. Project dependencies can be automatically retrieved if projects use a dependency manager such as Maven. 
+We cluster projects according to their dependencies.  The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:misfire3}. Graph databases use graph structures as a way to store and query information.  In our case,  a node corresponds to a project that is connected to other projects on which it depends. 
+Dependencies can be _external_ or _internal_. _external_ dependencies refer to products that are not creater nor maintained within the organization.
+These products can be open and closed source both.
+_Internal_ dependencies refers to projects that are maintained in-house.
+While we cannot describe in details the _external_ and _internal_ dependencies used at Ubisoft for confidentiality and security reasons, we can offer the reader a graphical representation of the 12 analysed projects (green) with their dependencies (blue) \ref{fig:network} and the resulting clusters \ref{fig:clusters}. 
 
-Figure \ref{fig:network-sample} shows a simplified view of a dependency graph for a project named \texttt{com.badlogicgames.gdx}.
-As we can see, \texttt{com.badlogicgames.gdx} depends on projects owned by the same organization (i.e., badlogicgames) and other organizations such as Google, Apple, and Github.
+Internally dependencies are managed within the framework of a single repository which makes their automatic extraction possible.
+The dependencies could also be retrieved automatically retrieved if projects use a dependency manager such as Maven. 
 
 \input{tex/network-sample}
 
 Once the project dependency graph is extracted, we use a clustering algorithm to partition the graph. To this end, we choose the Girvan–Newman algorithm [@Girvan2002; @Newman2004], used to detect communities by progressively removing edges from the original network. Instead of trying to construct a measure that identifies the edges that are the most central to communities, the Girvan–Newman algorithm focuses on edges that are most likely "between" communities. This algorithm is very effective at discovering community structure in both computer-generated and real-world network data [@Newman2004]. Other clustering algorithms can also be used. 
 
+The clusters are then used to devide the known defect introducing commits and their associated fixes. 
+When in search for a solution to a _risky_ commit we will only look for solutions applied to defect introducing commit in the same cluster.
+This allow to reduce the search space while enhancing the quality of the proposed solution as belonging to the same cluster is a mark of intrinsec similarity between projects in terms of dependencies. 
+
 ## Building a Database of Code Blocks of Defect-Commits and Fix-Commits {#sec:offline}
 
 To build our database of code blocks that are related to defect-commits and fix-commits, we first need to identify the respective commits. Then, we extract the relevant blocks of code from the commits.
 
-**Extracting Commits:** misfire listens to bug (or issue) closing events happening on the project tracking system. Every time an issue is closed, misfire retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). Retrieving fix-commits, however, is known to be a challenging task [@Wu2011]. This is because the link between the project tracking system and the code version control system is not always explicit. In an ideal situation, developers would add a reference to the issue they work on inside the description of the commit. However, this good practice is not always followed. To make the link between fix-commits and their related issues we implemented the SZZ algorithm [@Kim2006c]. In addition to the SZZ algorithm, we build a statistical model using the following code change metrics:
+**Extracting Commits:** Misfire listens to bug (or issue) closing events happening on the project tracking system. Every time an issue is closed, misfire retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). Retrieving fix-commits, however, is known to be a challenging task [@Wu2011]. This is because the link between the project tracking system and the code version control system is not always explicit. In an ideal situation, developers would add a reference to the issue they work on inside the description of the commit. However, this good practice is not always followed. To make the link between fix-commits and their related issues we implemented the SZZ algorithm [@Kim2006c]. In addition to the SZZ algorithm, we build a statistical model using the following code change metrics:
+
 - la: lines added
 - ld: lines deleted
 - nf: Number of modified files
@@ -132,55 +166,32 @@ To build our database of code blocks that are related to defect-commits and fix-
 - ndev: the number of developers that modifed the files in a commit
 - age: the average time interval between the last and current change
 - exp: number of changes made by author previously
-- rexp: experience weighted by age of files ( 1 / (n + 1))
+- rexp: experience weighted by age of files (1 / (n + 1))
 - sexp: changes made previous by author in same subsystem
 - loc: Total modified LOC across all files
 - nuc: number of unique changes to the files
 
-It already exists open-source implementation of such a system developed by Rosen _et al._  [@Rosen2015]
+Finally, a web api is able to receive new commits and provide a way to access to the statistical model 
 
+It already exists an open-source implementation of such a system developed by Rosen _et al._ called Commit-Guru [@Rosen2015].
+More specifically, we ported a Python version of the SZZ algorithm developed by Rosen _et al._  [@Rosen2015] in GoLang for performances and internal maintenability reasons.
 
- More specifically, we ported a Python version of the SZZ algorithm developed by Rosen _et al._  [@Rosen2015] in GoLang for performances and accuracy reasons.
+As Commit-guru's back-end, we have has three major components: ingestion, analysis, and prediction. The ingestion component is responsible for ingesting (i.e., downloading) a given repository.
+Once the repository is entirely downloaded on a local server, each commit history is analysed. 
+Unlike commit-guru that classifies commit using the list of keywords proposed by Hindle *et al.* [@Hindle2008], MISFIRE classify the commit using the internal project tracking system.
+Project tracking system allows one to report unexpected system behaviour and managers can assign them to developers.
+Using the internal pre-commit hook, developers must link every commit to a give task #ID. 
+If the task #ID entered by the developer matches a bug or crash report within the project tracking system, then we perform the SCM blame/annotate function on all the modified lines of code for their corresponding files on the fix-commit's parents. This returns the commits that previously modified these lines of code and are flagged as the defect introducing commits (i.e., the defect-commits).
 
+The SZZ algorithm, used by commit-guru and MISFIRE has been shown to be effective in detecting risky commits [@Kamei2013; @Rosen2015]. 
+Moreover, we are more accurate in identfying fixing commits than any approaches using a keyword classification [@Hindle2008] and we do not rely on linking tools to re-construct the relationship between the commit and an issue such as Relink [@Wu2011] as 100\% of the commits are linked to tasks by design.
 
-
-
- we turn to a modified version of the back-end of commit-guru [@Rosen2015]. Commit-guru is a tool, developed by Rosen _et al._  [@Rosen2015] to detect _risky commits_. In order to identify risky commits, Commit-guru builds a statistical model using change metrics (i.e.,  amount of lines added, amount of lines deleted, amount of files modified, etc.) from past commits known to have introduced defects in the past.
-
-Commit-guru's back-end has three major components: ingestion, analysis, and prediction. We reuse the ingestion and the analysis part for misfire. The ingestion component is responsible for ingesting (i.e., downloading) a given repository.
-Once the repository is entirely downloaded on a local server, each commit history is analysed. Commits are classified using the list of keywords proposed by Hindle *et al.* [@Hindle2008]. Commit-guru implements the SZZ algorithm [@Kim2006c] to detect risky changes, where it performs the SCM blame/annotate function on all the modified lines of code for their corresponding files on the fix-commit's parents. This returns the commits that previously modified these lines of code and are flagged as the defect introducing commits (i.e., the defect-commits). Prior work showed that commit-guru is effective in identifying defect-commits and their corresponding fixing commits [@Kamei2013a] and the SZZ algorithm, used by commit-guru, is shown to be effective in detecting risky commits [@Kamei2013; @Rosen2015]. Note that we could use a simpler and more established approach such as Relink [@Wu2011] to link the commits to their issues and re-implement the classification proposed by Hindle *et al.* [@Hindle2008] on top of it. However, commit-guru has the advantage of being open-source, making it possible to modify it to fit our needs by fine-tuning its performance.
-
-**Extracting Code Blocks:** To extract code blocks from fix-commits and defect-commits,  we rely on TXL [@Cordy2006a], which is a first-order functional programming over linear term rewriting, developed by Cordy et al. [@Cordy2006a]. For TXL to work, one has to write a grammar describing the syntax of the source language and the transformations needed. TXL has three main phases: *parse*, *transform*, *unparse*. In the parse phase, the grammar controls not only the input but also the output forms. The following code sample---extracted from the official documentation---shows a grammar matching an *if-then-else* statement in C with some special keywords: [IN] (indent), [EX] (exdent) and [NL] (newline) that will be used in the output form.
-
-```c
-define if_statement
-  if ( [expr] ) [IN][NL]
-[statement] [EX]
-[opt else_statement]
-end define
-
-define else_statement
-  else [IN][NL]
-[statement] [EX]
-end define
-```
-
-Then, the *transform* phase applies transformation rules that can, for example, normalize or abstract the source code. 
-Finally, the third phase of TXL, called *unparse*, unparses the transformed parsed input to output it. 
-Also, TXL supports what its creators call _Agile Parsing_ [@Dean], which allow developers to redefine the rules of the grammar and, therefore, apply different rules than the original ones.
-misfire takes advantage of that by redefining the blocks that should be extracted for the purpose of code comparison, leaving out the blocks that are out of scope. More precisely, before each commit, we only extract the blocks belonging to the modified parts of the source code.  Hence, we only process, in an incremental manner, the latest modification of the source code instead of the source code as a whole.
-
-We have selected TXL for several reasons. First, TXL is easy to install and to integrate with the normal workflow of a developer. 
-Second, it was relatively easy to create a grammar that accepts commits as input. This is because TXL supports C, Java, Csharp, Python and WSDL grammars, with the ability to customize them to accept changesets (chunks of the modified source code that include the added, modified, and deleted lines) instead of the whole code.
-
-\input{tex/extract}
-
-Algorithm \ref{alg:extract} presents an overview of the *extract* and *save* blocks operations of misfire. This algorithm receives as argument, the changesets and the blocks that have been previously extracted. 
+**Extracting Code Blocks:**  Algorithm \ref{alg:extract} presents an overview of how extract blocks. This algorithm receives as argument, the changesets and the blocks that have been previously extracted. 
 Then, Lines 1 to 5 show the $for$ loop that iterates over the changesets. 
 For each changeset (Line 2), we extract the blocks by calling the $~extract\_blocks(Changeset~cs)$ function. 
 In this function, we expand our changeset to the left and to the right in order to have a complete block.
 
-As depicted below, changesets contain only the modified chunk of code and not necessarily complete blocks. 
+As depicted by the diff below (not from Ubisoft), changesets contain only the modified chunk of code and not necessarily complete blocks. 
 
 ```diff
 @@ -315,36 +315,6 @@
@@ -198,7 +209,6 @@ int initprocesstree_sysdep
 
 Therefore, we need to expand the changeset to the left (or right) to have syntactically correct blocks. 
 We do so by checking the block's beginning and ending with a parentheses algorithms [@bultena1998eades]. 
-Then, we send these expanded changesets to TXL for block extraction and formalization.
 
 One important note about this database is that the process can be cold-started.
 A tool supporting misfire does not need to *wait* for a project to have issues and fixes to be in effect.
@@ -211,25 +221,20 @@ project. The only requirement is to use a dependency manager.
 
 ## Finding potential fixes for faults  {#sec:online}
 
-Each time a developer makes a commit, misfire intercepts it using a pre-commit hook,  extracts the corresponding code block (in a similar way as in the previous phase), and compares it to the code blocks of historical defect-commits. If there is a match then the new commit is deemed to be risky. A threshold $\alpha$ is used to assess the extent beyond which two commits are considered similar. The setting of $\alpha$ is discussed in the case study section.
+Each time a developer makes a commit, misfire intercepts it using a pre-commit hook,  extracts the corresponding code block (in a similar way as in the previous phase), and compares it to the code blocks of historical defect-commits. If there is a match then the new commit is deemed to be risky. A threshold $S$ is used to assess the extent beyond which two commits are considered similar. The setting of $S$ is discussed in the case study section.
 
-Pre-commit hooks are custom scripts set to fire off when certain important actions of the versioning process occur.
-There are two groups of hooks: client-side and server-side. Client-side hooks are triggered by operations such as committing and merging, whereas server-side hooks run on network operations such as receiving pushed commits. These hooks can be used for all sorts of reasons such as checking compliance with coding rules or automatic runs of unit test suites. The pre-commit hook runs before the developer specifies a commit message. It is used to inspect the modifications that are about to be committed. misfire is based on a set of bash and python scripts, and the entry point of these scripts lies in a pre-commit hook. These scripts intercept the commit and extract the corresponding code blocks.
+To compare the extracted blocks to the ones in the database, we resort to clone detection techniques, more specifically, text-based clone detection techniques. This is because lexical and syntactic analysis approaches (alternatives to text-based comparisons) would require a complete program to work, i.e., a program that compiles.  In the relatively wide-range of tools and techniques that exist to detect clones by considering code as text [@Johnson1993;  @Johnson1994; @Marcus; @Manber1994; @StephaneDucasse; @Wettel2005; @Cordy2011] we had to build our own text-based clone detector for several reasons.
+First and foremost, the clone detector should have the ability, once a clone have been indentified, to trasnform the matching clones for them to match the workspace of the developer in terms of variables names and data structure.
+While classical clone detector aims to detect clone pairs for removal and/or managing them, we have another goal.
+Indeed, we want non only to match clone pairs by abstracting them, we also want to transform one blocks into another.
+The contextualized fix that we proposed to the developers can be syntactically incorect as they are based on imcomplete blocks of code.
+Hence, they cannot be use directly by developer. 
+We simply believe that the contextualized fixes are easier to understand and apply as the _look_ familiar to the code the developer is currently attempting to submit.
 
-To compare the extracted blocks to the ones in the database, we resort to clone detection techniques, more specifically, text-based clone detection techniques. This is because lexical and syntactic analysis approaches (alternatives to text-based comparisons) would require a complete program to work, i.e., a program that compiles.  In the relatively wide-range of tools and techniques that exist to detect clones by considering code as text [@Johnson1993;  @Johnson1994; @Marcus; @Manber1994; @StephaneDucasse; @Wettel2005], we selected NICAD as the main text-based method for comparing code blocks [@Cordy2011] for several reasons. 
-First, NICAD is built on top of TXL, which we also used in the previous phase.  Second, NICAD can detect Types 1, 2 and 3 software clones [@CoryKapser]. Type 1 clones are copy-pasted blocks of code that only differ from each other in terms of non-code artefacts such as indentation, whitespaces, comments and so on.  Type 2 clones are blocks of code that are syntactically identical except literals, identifiers, and types that can be modified. Also, Type 2 clones share the particularities of Type 1 about indentation, whitespaces, and comments. Type 3 clones are similar to Type 2 clones in terms of modification of literals, identifiers, types, indentation, whitespaces, and comments but also contain added or deleted code statements. misfire detects Type 3 clones since they can contain added or deleted code statements, which make them suitable for comparing commit code blocks.
-The problem with the current implementation of NICAD is that it only considers complete Java, C\#, and C files. We needed to adapt NICAD to process changesets. With the aid of TXL designers (through their online forum), we developed a TXL grammar for changesets.
+Our clone detector  can detect Types 1, 2 and 3 software clones [@CoryKapser]. Type 1 clones are copy-pasted blocks of code that only differ from each other in terms of non-code artefacts such as indentation, whitespaces, comments and so on.  Type 2 clones are blocks of code that are syntactically identical except literals, identifiers, and types that can be modified. Also, Type 2 clones share the particularities of Type 1 about indentation, whitespaces, and comments. Type 3 clones are similar to Type 2 clones in terms of modification of literals, identifiers, types, indentation, whitespaces, and comments but also contain added or deleted code statements. misfire detects Type 3 clones since they can contain added or deleted code statements, which make them suitable for comparing commit code blocks.
 
-NICAD works in three phases: *Extraction*, *Comparison* and *Reporting*. 
-During the *Extraction* phase all potential clones are identified, pretty-printed, and extracted. 
-We do not use the *Extraction* phase of NICAD as it has been built to work on programs that are syntactically correct, which is not the case for changesets. 
-We replaced NICAD’s *Extraction* phase with our scripts for building code blocks (described in the previous phase).
-
-In the *Comparison* phase, the extracted blocks are transformed, clustered and compared to find potential clones. 
-Using TXL sub-programs, blocks go through a process called pretty-printing where they are stripped of formatting and comments. 
-When code fragments are cloned, some comments, indentation or spacing are changed according to the new context where the new code is used. 
-This pretty-printing process ensures that all code will have the same spacing and formatting, which renders the comparison of code fragments easier. 
-Furthermore, in the pretty-printing process, statements can be broken down into several lines. Table \ref{tab:pretty-printing} [@Iss2009] shows how this can improve the accuracy of clone detection with three `for` statements:
+For our clone detector, we reuse the pretty-printing strategy from Roy _et al._ where  statements are broken down into several lines [@Iss2009].
+Furthermore, in th process, statements can be  shows how this can improve the accuracy of clone detection with three `for` statements:
 
 \begin{equation}
  for (i=0; i<10; i++)
@@ -243,8 +248,7 @@ Furthermore, in the pretty-printing process, statements can be broken down into 
  for (j=2; j<100; j++)
 \end{equation}
 
-The pretty-printing allows NICAD to detect Segments 1 and 2 as a clone pair because only the initialization of $i$ changed. This specific example would not have been marked as a clone by other tools we tested such as Duploc [@StephaneDucasse]. 
-In addition to the pretty-printing, code can be normalized and filtered to detect different classes of clones and match user preferences.
+The pretty-printing allows us to detect Segments 1 and 2 as a clone pair, as shown by Table \ref{tab:pretty-printing}, because only the initialization of $i$ changed. This specific example would not have been marked as a clone by other tools we tested such as Duploc [@StephaneDucasse]. 
 
 \input{tex/Pretty-Printing}
 
@@ -253,6 +257,20 @@ The extracted, pretty-printed, normalized and filtered blocks are marked as pote
 Another important aspect of the design of misfire is the ability to provide guidance to developers on how to improve risky commits. We achieve this by extracting from the database the fix-commit corresponding to the matching defect-commit and present it to the developer. We believe that this makes misfire a practical approach for the developers as they will know why a given modification has been reported as risky in terms of code; this is something that is not supported by techniques based on statistical models (e.g., [@Kamei2013a; @Rosen2015]).  
 A tool that supports misfire should have enough flexibility to allow developers to enable or disable the recommendations made by misfire. 
 Furthermore, because misfire acts before the commit reach the central repository, it prevents unfortunate pulls of defects by other members of the organization. 
+
+While we cannot provide actual defect introducing and bug fixing commits, we provide a fictional example using two version of the well known bubble sort algorithm in table \ref{tab:bubble}.
+In the fictional example, we assume that the bubble sort on the left column would be a fix of the bubble sort on the right column.
+First, both bubble sort are pretty-printed.
+Then, the variables and types are abstracted using _#_ signs.
+Note that we display complete abstraction but we can also choose to abstract only the variables names and keep the variables types.
+Both abstractions are performed by our clone detector and each commit classified as _risky_ are compared to both abstraction.
+Then, the parts that matches in both abstraction are displayed in red.
+Here, we have 10/19 lines that match.
+Consequently, the similarity between the two code abstracted code blocks is 52.6\%.
+Finally, in the third row, we display the original fix and the contextualized one.
+On the contextualized fix, the variables names and types have been modified so they match the code that the developer is currently trying to submit.
+
+
 
 # Case Study Setup {#sec:exp}
 
