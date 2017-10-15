@@ -3,7 +3,7 @@
 ## Collaborate
 
 Edit the bianca.md file using whichever text editor you want (Vim, Sublime, Word). 
-You can even edit it online, directly on github: https://github.com/PapersOfMathieuNls/bianca/edit/master/bianca.md
+You can even edit it online, directly on github: https://github.com/PapersOfMathieuNls/misfire/edit/master/combined.md
 
 The only thing that matters is to save it in text format.
 
@@ -15,11 +15,5 @@ Here's the command, assuming pandoc is installed on your system and that you are
 ### For the paper
 
 ```bash
-pandoc -s -S --filter pandoc-citeproc --number-sections --template="config/default.latex" -o bianca.md.pdf bianca.md
-```
-
-### For the review
-
-```bash
-pandoc icse-reviews.md -o isce-reviews.pdf
+./build.sh
 ```
