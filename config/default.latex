@@ -8,6 +8,7 @@
 \usepackage{rotating}
 \usepackage{pdflscape}
 \usepackage{float}
+\usepackage{amssymb}
 
 \ifCLASSOPTIONcompsoc
   % IEEE Computer Society needs nocompress option

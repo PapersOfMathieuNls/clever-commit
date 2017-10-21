@@ -284,12 +284,14 @@ Indeed, it is unclear what the effect of adding signature will discarding other 
 Our clusters, computed with the dependencies of each project allow to solve one major problem in defect learning and prediction: cold start [@Schein2002].
 Several approaches have already been proposed to solve these problems, however, they all require to classify _similar_ projects by hand and then, manipulate the feature space in order to adapt the model learnt from one project to the other [@Nam2013]. 
 With our approach, the _similarity_ between projects is computed automatically and, results show that we do not actually need to manipulate the feature space.
-Figures \ref{fig:bluecluster}, \ref{fig:yellowcluster} and \ref{fig:redcluster} show the performance of the CLEVERTe classification, in terms of ROC-curve and recall over precision curves, for the first thousand commit of the last project (chronologically) for the blue, yellow and red clusters presented in Figure \ref{fig:network-sample}.
+Figures \ref{fig:bluecluster}, \ref{fig:yellowcluster} and \ref{fig:redcluster} show the performance of the CLEVERT classification, in terms of ROC-curve and recall over precision curves, for the first thousand commit of the last project (chronologically) for the blue, yellow and red clusters presented in Figure \ref{fig:network-sample}.
 The left sides or the graph are low cutoff (aggressive) while the right sides are high cutoff (conservative).
 The area under the ROC curves are 0.817, 0.763 and 0.806 for the blue, yellow and red clusters, respectively.
 
 
 \input{tex/clusterRoc}
+
+\input{tex/workshop.tex}
 
 These results show that not only the clusters are effective in identifying similar projects for defect learning transfer but also provide excellent performance while starting a new project. As new projects mature, their defects would be integrated into the model in order to improve it. To confirm this, we ran an experiment with the blue cluster where we first apply the model learnt from other members of the cluster for the first thousand commits.
 The performance of this model is 75.1% precision, 57.6% recall for the first thousand commits.
@@ -299,17 +301,42 @@ This shows that, in addition to providing a viable alternative to a cold-start, 
 
 ## Analysis of the Quality of the Fixes Proposed by CLEVERT
 
-In order to validate the quality of the fixes proposed by CLEVERT we conducted an internal workshop. 
-In this workshop, participants were ask to assess the quality of proposed fixed when presented with the original buggy commit, the origin fix for this commit and the proposed one.
+In order to validate the quality of the fixes proposed by CLEVERT, we conducted an internal workshop. 
+In this workshop, participants were asked to assess the quality of proposed fixed when presented with the original buggy commit, the origin fix for this commit and the proposed one.
 The attendance was composed of two software architects, two programmers, one technical lead and one IT project manager.
 
+Our pannel was asked to collectively review 12 randomly selected fixes coming from one given system. 
+All the participants are familiar with the system.
+The participants reviewed the fixes over a 70 minutes period, and we report their opinions individually.
+In addition to assessing the quality of the proposed fixes and their likeliness of the proposed fixes with actual fixes; we asked two additional questions to our pannel of experts: _Will you use MISFIRE in the future?_ and _What aspects need to be improved?_. 
 
--          What is the quality of the proposed fix
--          How similar to the actual fixes, the proposed fixes are
--          Do you think the proposed fixes are useful
--          Will you use MISFIRE in the future
--          What aspects need to be improved
+Table \ref{tab:Workshop} reports the results of our pannel regarding accepted fix (\checkmark), fix refused ($x$) and non-applicable or unsure (-). 41.6% of the proposed bug fixes have been unanimously accepted  (1, 3, 6, 10 and 12) while 25% have been accepted by at least one member (4, 8, 11). 
+We detail the refusals (x) and unsure (-) in the following.
 
+$BF2$ was rejected by our pannel as the region of the commit that triggered a match is, in fact, generated code. 
+While this generated code is pushed into the repositories and can be part of bug fixing commit, the root cause of the bug lies in the code generator itself. 
+Our proposed fix was proposing to update the generated code. 
+While a match in the generated code could lead the developer to the root cause (i.e. the code generator) the question we ask our reviewers was _"Is the proposed fix applicable in the given situation?"_. 
+In this occurence, the proposed fix is not applicable.
+
+$BF4$ was accepted by two reviewers and marked as unsure ($-$) by the rest of our pannel.
+Here, the reservation for the pannelists that were unsure came from the lack of context souroinding the proposed fix.
+Indeed, they were unable to determine if the fix was applicable or not without knowing what the original intent of the buggy commit was. 
+In our reviewing session, we only provided the reviewers with the regions of the commits that match rather than the full commit.
+Full commits can be lengthy as they can containe assets descriptions and generated code in addition to the actual code.
+In this occurence, the full context of the commit might have helped our reviewers to decide if the $BF4$ was applicable or not.
+$BF5$ and $BF7$ were classified as unsure by the totallity of our pannel for the same reasons as $BF4$.
+$BF8$ was refused by four of our reviewers and rejected by two is at felt to a reviewer that the code clone match was more a refactoring opportunity than a fix.
+$BF12$ was marked as unsure by our pannel because the code was corresponding to a subsystem that is maintained by another team and our pannel judged itself unqualified.
+
+For the two remaining questions we ask our reviewers  _Will you use MISFIRE in the future?_ and _What aspects need to be improved?_, they answered positively for the first question if some aspects are improved.
+First, the reviewers expressed concerns about the context sourounding the buggy commit and the fixes.
+While displaying the entire commits is not the solution, according to the pannel, some context mught be infered from the commit message (which were not provided) and from the JIRA issue associated with the fix.
+The second concern of our pannel, which generated many discussions, is the incapcity of CLEVERT to match generated code.
+In the occurence of a match in generated code, CLEVERT should be able to identify it and point towards the code generator rather than the generated code.
+
+One interesting remark made by the pannel is that were expected buggy commit, and their associated proposed fix to be more complex (i.e. network, threading, physics) than the one we presented.
+Ultimately, they agreed that the bug showcased were rather simple and could have been catched during a code review by an experienced developer.
 
 # Discussion {#sec:threats}
 
