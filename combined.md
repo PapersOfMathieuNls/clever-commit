@@ -299,7 +299,17 @@ This shows that, in addition to providing a viable alternative to a cold-start, 
 
 ## Analysis of the Quality of the Fixes Proposed by CLEVERT
 
-\mathieu{This is plannified this week with architects at Ubisoft}
+In order to validate the quality of the fixes proposed by CLEVERT we conducted an internal workshop. 
+In this workshop, participants were ask to assess the quality of proposed fixed when presented with the original buggy commit, the origin fix for this commit and the proposed one.
+The attendance was composed of two software architects, two programmers, one technical lead and one IT project manager.
+
+
+-          What is the quality of the proposed fix
+-          How similar to the actual fixes, the proposed fixes are
+-          Do you think the proposed fixes are useful
+-          Will you use MISFIRE in the future
+-          What aspects need to be improved
+
 
 # Discussion {#sec:threats}
 
@@ -339,7 +349,7 @@ However, the CLEVERT source code is in the process of being open-sourced and wil
 
 # Acknowledgements
 
-We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard and Chadi Lebbos from Ubisoft for their participations in validating CLEVERT hypothesis, efficiency and the fixes proposed by our approach.
+We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard, Chadi Lebbos and Florent Jousset, Anthony Brien, Thierry Jouin and Jean-Pierre Nolin from Ubisoft for their participations in validating CLEVERT hypothesis, efficiency and the fixes proposed by our approach.
 
 \section*{References} 
 
