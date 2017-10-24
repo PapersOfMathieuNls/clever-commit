@@ -12,10 +12,7 @@ author:
   affiliation: ECE Department, Concordia University
   location: Montréal, QC, Canada
   email: wahab.hamou-lhadj@concordia.ca
-csl: config/ieee.csl
-classoption: 
-- 10pt
-- conference
+csl: config/acm-sig-proceedings.csl
 keyword: 
 - Bug Prediction
 - Risky Software Commits
@@ -25,7 +22,7 @@ keyword:
 
 \section{Introduction}\label{sec:introduction}
 
-\IEEEPARstart{A}{utomatic} prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. A particular line of research focuses on the problem of preventing the introduction of faults by detecting risky commits (commits that may potentially introduce faults in the system) before reaching the central code repository. We refer to this as just-in-time fault detection/prevention.
+Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. A particular line of research focuses on the problem of preventing the introduction of faults by detecting risky commits (commits that may potentially introduce faults in the system) before reaching the central code repository. We refer to this as just-in-time fault detection/prevention.
 
 There exist techniques that aim to detect risky commits (e.g., [REF]), among which the most recent approach is the one proposed Rosen et al. [@Rosen2015]. The authors developed an approach and a supporting tool, Commit-guru, that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features. These models are used to classify new commits as risky or not. Commit-guru has been shown to outperform previous techniques (e.g., [@Kamei2013a; @Kpodjedo2010]).
 
@@ -326,14 +323,12 @@ If a fix is never used by the end-users, then we could remove it from the cluste
 For security and confidentiality reasons we cannot provide a reproduction package that will inevitably involve Ubisoft's copyrighted source code.
 However, the CLEVER source code is in the process of being open-sourced and will be soon available at https://github.com/ubisoftinc.
 
-# Acknowledgments
+\begin{acks}
 
 We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard, Chadi Lebbos and Florent Jousset, Anthony Brien, Thierry Jouin and Jean-Pierre Nolin from Ubisoft for their participations in validating CLEVER hypothesis, efficiency and proposed fixes proposed.
+\end{acks}
 
 \section*{References}
-
-<!-- End Footnotes text -->
-
 \small
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
