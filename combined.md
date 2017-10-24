@@ -233,13 +233,13 @@ The clusters computed with the dependencies of each project help to solve an imp
 Indeed, as performant as a classifier can be it, after training, it still needs to be train with historical data.
 While the system is learning, no prediction can be done.
 
-There exist approaches have been proposed to solve this problems, however, they all require to classify _similar_ projects by hand and then, manipulate the feature space in order to adapt the model learnt from one project to another one [@Nam2013].
+There exist approaches have been proposed to solve this problems, however, they all require to classify _similar_ projects by hand and then or identify common thresholds [@Nam2013].
 
-With our approach, the _similarity_ between projects is computed automatically and the results show that we do not actually need to manipulate the feature space. Figures \ref{fig:bluecluster}, \ref{fig:yellowcluster} and \ref{fig:redcluster} show the performance of CLEVER classification in terms of ROC-curve for the first thousand commits of the last project (chronologically) for the blue, yellow and red clusters presented in Figure \ref{fig:network-sample}.
+With our approach, the _similarity_ between projects is computed automatically. Figures \ref{fig:bluecluster}, \ref{fig:yellowcluster} and \ref{fig:redcluster} show the performance of CLEVER classifications in terms of ROC-curve for the first thousand commits of the last project (chronologically) for the blue, yellow and red clusters presented in Figure \ref{fig:network-sample} while using a model built from the data of the other members of the cluster.
 The left sides or the graph are low cutoff (aggressive) while the right sides are high cutoff (conservative).
 The area under the ROC curves are 0.817, 0.763 and 0.806 for the blue, yellow and red clusters, respectively.
-In other words, if we train a classifier with historical data from system in the same cluster as the targeted systems, then we do not have to wait to start classifying incoming commits.
-To confirm this, we ran an experiment with the blue cluster where we first apply the model learnt from other members of the cluster for the first thousand commits. The performance of this model is 75.1% precision, 57.6% recall for the first thousand commits.
+The recall to precision ratios are also acceptable with precisions reaching 70% for 50% recalls in all cases. 
+In other words, if we train a classifier with historical data from system in the same cluster as the targeted system, then we do not have to wait to start classifying incoming commits.
 To evaluate the added performance obtained via the cluster, we ran the same experiment but using a model built with data from the red cluster on the last project of the blue cluster. 
 The results are shown in Figure \ref{fig:redonblue}.
 While the AUC for the recall versus the specificity stays in acceptable range at 0.708, we see a drastic decrease in the obtained precision. 
