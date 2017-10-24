@@ -1,6 +1,6 @@
 ﻿---
 title: "CLEVER: Combining Code Metrics with Clone Detection for Just-In-Time Fault Prevention and 
-Resolution of Faults in Large Industrial Projects"
+Resolution in Large Industrial Projects"
 bibliography: config/library.bib
 abstract:  "Abstract goes here"
 author: 
@@ -23,7 +23,6 @@ keyword:
 \section{Introduction}\label{sec:introduction}
 
 Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. A particular line of research focuses on the problem of preventing the introduction of faults by detecting risky commits (commits that may potentially introduce faults in the system) before reaching the central code repository. We refer to this as just-in-time fault detection/prevention.
-
 There exist techniques that aim to detect risky commits (e.g., [REF]), among which the most recent approach is the one proposed Rosen et al. [@Rosen2015]. The authors developed an approach and a supporting tool, Commit-guru, that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features. These models are used to classify new commits as risky or not. Commit-guru has been shown to outperform previous techniques (e.g., [@Kamei2013a; @Kpodjedo2010]).
 
 Commit-guru and similar tools suffer from a number of limitations. First, they tend to generate high false positive rates by classifying healthy commits as risky. The second limitation is that they do not provide sufficient insights to developers on how to fix the detected risky commits. They simply return measurements that are often difficult to interpret by developers. In addition, they have been mainly validated using open source systems. Their effectiveness when applied to industrial systems has yet to be shown.
@@ -43,37 +42,27 @@ Then, Sections \ref{sec:threats} and \ref{sec:conclusion} present the threats to
 
 # Related Work {#sec:relwork}
 
-Our approach, CLEVER, is related to two research areas: defects predictions and patch generation.
+Our approach, CLEVER, is related to two research areas: defect prediction and patch generation.
 
 ## File, Module and Risky Change Prediction
 
-Most approaches aiming to predict risky changes within a repository use code and process metrics.
-It exists several well-known metric suites such as the CK metrics suite [@Chidamber1994] or the Briand's coupling metrics [@Briand1999a].
-These metrics suites have been used, with success, to predit defects by Subramanyam *et al.* [@Subramanyam2003] and Gyimothy *et al.* [@Gyimothy2005] in the past.
+Existing studies for predicting risky changes within a repository rely mainly on code and process metrics. As discussed in the introduction section, Rosen et al. [@Rosen2015]  developed  Commit-guru a tool that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features.  There exist other studies that leverage code several  metric suites such as the CK metrics suite [@Chidamber1994] or the Briand's coupling metrics [@Briand1999a]. These metrics have been used, with success, to predict defects  as shown by Subramanyam *et al.* [@Subramanyam2003] and Gyimothy *et al.* [@Gyimothy2005].
 
-Further improvements to these metrics have been left by Nagappan *et al.* [@Nagappan2005; @Nagappan2006]  and  Zimmerman *et al.* [@Zimmermann2007; @Zimmermann2008] who used static analyzer and call-graphes.
+Further improvements to these metrics have been proposed by Nagappan *et al.* [@Nagappan2005; @Nagappan2006]  and  Zimmerman *et al.* [@Zimmermann2007; @Zimmermann2008] who used  call graphs as the main artifact for computing code metrics with a static analyzer.
 
-Another technique is to use data mined from the source code repository such as churns to assess the quality of a change [@Nagappan].
-Then, Hassan *et al* and Ostrand *et al* used past changes and defects to predict buggy locations (e.g., [@Hassan2005], [@Ostrand2005]).
-Their approaches are able to highlights the locations that are the most likely to introduce a defect using heuristics.
-Kim *et al* [@Kim2007a] proposed the bug cache approach, which is an improved technique over Hassan and Holt's approach [@Hassan2005]. Rahman and Devanbu found that, in general, process-based metrics perform as good as or better than code-based metrics [@rahman2013].
+Nagappan *et al.* et proposed a technique that uses data mined from source code repository such as churns to assess the quality of a change [@Nagappan]. Hassan *et al* and Ostrand *et al* used past changes and defects to predict buggy locations  [@Hassan2005], [@Ostrand2005]. Their methods rely on various heuristics to identify the locations that are most likely to introduce a defect. Kim *et al* [@Kim2007a] proposed the bug cache approach, which is an improved technique over Hassan and Holt's approach [@Hassan2005]. Rahman and Devanbu found that, in general, process-based metrics perform as good as  code-based metrics [@rahman2013].
 
-Other studies aiming to predict risky changes used the entropy of a given change [@Hassan2009] and the size of the change combined with files being changed [@Kamei2013].
+Other studies that aim to predict risky changes use the entropy of a given change [@Hassan2009] and the size of the change combined with files being changed [@Kamei2013].
 
-Our work shares a similar goal to works on the prediction of risky changes. However, CLEVER takes a different approach in that it leverages dependencies of a project to determine risky changes.
+These techniques operate at different levels of the systems and may require the presence of the entire source code. In addition, the reliance of metrics may result of false positives. We need a way to to validate whether a suspicious change is indeed risky.  In this paper,  we address this issue using a two-phase process that combines the use of metrics to detect suspicious risky changes, and code matching to increase the detect accuracy. As we will show in the evaluation section, CLEVER reduces the number of false positives while keeping good accuracy. In addition, CLEVER  operates at commit-time for preventing the introduction of faults before they reach the code repository. Through interactions with Ubisoft developers, we found that this integrates well with the workflow of developers. 
 
 ## Automatic Patch Generation
 
-One advantage of CLEVER over other defect prediction techniques is that it provides a solution to the problem at hand.
-Consequently, we must also investigate the litterature in automatic patch generation.
-Pan *et al.* and  Kim *et al.* proposed two approaches that extract fix patterns and try to apply them. Pan *et al.*  identified 27 patterns and were able to fix 45.7 - 63.6 \% of bugs using of their patterns.
-The patterns found by Kim *et al.* are mined from human-written patch and, they were able to successfully generated patches for 27 of 119 bugs.
-The tool by Kim *et al.*, named PAR, is similar to the second part of CLEVER (i.e the fix proposal part) as we also mine potential fixes from human-written patches in the history.
-In our work we do not generate patches, however, but only propose known patches to the developers.
+One feature of CLEVER  is the ability to propose fixes that can help developers correct the detected risky commit. This is similar in principle to the work on automatic patch generation.
+Pan *et al.* and  Kim *et al.* proposed two approaches that extract and apply fix patterns [REF]. Pan *et al.*  identified 27 patterns and were able to fix 45.7% - 63.6% of bugs using of the proposed patterns.
+The patterns found by Kim *et al.* are mined from human-written patches and were able to successfully generate patches for 27 out of 119 bugs. The tool by Kim *et al.*, named PAR, is similar to the second part of CLEVER where we propose fixes. Our approach also mines potential fixes from human-written patches found in the historical data. In our work, we do not generate patches,  but instead  propose known patches to developers for further assessment. It has also been shown that patch generation is useful in understanding and debugging the causes of faults [@tao2014automatically]. 
 
-It has also been shown that patch generation is usefull not only to fix a bug but to understand the causes in debugging sessions [@tao2014automatically].
-Finally, patch generation is a complex tasks as human developer are expecting high-quality patches to be proposed by the tools and approaches of researchers.
-Several studies classified what is an acceptable quality for an automatically generated patch  [@Dallmeier; @le2012systematic; @le2015should].
+Despite the advances in the field of automatic patch generation, this task remains overly complex. Developers expect from tools high quality patches that can be safely deployed. Many studies proposed a classification of what is considered  an acceptable quality patch for an automatically generated patch technique to be adopted in industry [@Dallmeier; @le2012systematic; @le2015should].
 
 # The CLEVER Approach {#sec:CLEVERT}
 
@@ -100,7 +89,7 @@ If  the commit is classified as _non-risky_, then the process stops, and the com
 
 ## Clustering Projects {#sec:clustering}
 
-We cluster projects according to their dependencies. The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:CLEVERT3}. A node corresponds to a project that is connected to other projects on which it depends. Dependencies can be _external_ or _internal_ depending on whether the products are created in-house or supplied by a third-party. For confidentiality reasons, we cannot reveal the name of the projects involved in the project dependency graph. We show the 12 projects in yellow color with their dependencies in blue color \ref{fig:dep-graph}. The resulting partitioning is shown in \ref{fig:network-sample}.
+We cluster projects according to their dependencies. The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:CLEVERT3}. A node corresponds to a project that is connected to other projects on which it depends. Dependencies can be _external_ or _internal_ depending on whether the products are created in-house or supplied by a third-party. For confidentiality reasons, we cannot reveal the name of the projects involved in the project dependency graph. We show the 12 projects in yellow color with their dependencies in blue color in Figure \ref{fig:dep-graph}. The resulting partitioning is shown in Figure \ref{fig:network-sample}.
 
 \input{tex/dependencies}
 
@@ -285,7 +274,7 @@ $F12$ was marked as unsure by all the reviewers because the code had to do with 
 
 After the session, we asked the participants two additional questions: _Will you use CLEVER in the future?_ and _What aspects of CLEVER need to be improved?_.
 
-The participants answered the first question positively. They all agreed that CLEVER could be a good tool for intercepting risky commits, and hence improving the quality assurance process. For the second question, the participants expressed concerns about the context surrounding the buggy commits and the fixes. While displaying the entire commits is not a solution, according to the participants, some context might be inferred from the commit messages and the issues associated with the fixes in the bug tracking systems. The second limitation of CLEVER is its inability to deal with generated code. At this point, CLEVER points towards the code generated code rather than the generated code. This aspect of CLEVER needs to be improved.
+The participants answered the first question positively. They all agreed that CLEVER could be a good tool for intercepting risky commits, and hence improving the quality assurance process. For the second question, the participants expressed concerns about the context surrounding the buggy commits and the fixes. While displaying the entire commits is not a solution, according to the participants, some context might be inferred from the commit messages and the issues associated with the fixes in the bug tracking systems. The second limitation of CLEVER is its inability to deal with generated code. At this point, CLEVER points towards the code generated code rather than the code generator. These aspects of CLEVER needs to be improved.
 
 # Discussion {#sec:threats}
 
@@ -323,12 +312,10 @@ If a fix is never used by the end-users, then we could remove it from the cluste
 For security and confidentiality reasons we cannot provide a reproduction package that will inevitably involve Ubisoft's copyrighted source code.
 However, the CLEVER source code is in the process of being open-sourced and will be soon available at https://github.com/ubisoftinc.
 
-\begin{acks}
+# Acknowledgments
 
-We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard, Chadi Lebbos and Florent Jousset, Anthony Brien, Thierry Jouin and Jean-Pierre Nolin from Ubisoft for their participations in validating CLEVER hypothesis, efficiency and proposed fixes proposed.
-\end{acks}
+We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard, Chadi Lebbos and Florent Jousset, Anthony Brien, Thierry Jouin and Jean-Pierre Nolin from Ubisoft for their participations in validating CLEVER hypothesis, efficiency and proposed fixes.
 
 \section*{References}
-\small
+<!-- End Footnotes text -->
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
