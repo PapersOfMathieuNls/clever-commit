@@ -184,6 +184,8 @@ $endif$
 
 \renewcommand{\shorttitle}{Combining Code Metrics With Clone Detection For Faults Prevention and Resolution}
 
+
+
 \begin{abstract}
 $abstract$
 \end{abstract}
@@ -219,7 +221,11 @@ $abstract$
 
 \keywords{Defect Predictions, Fault Fixing, Software Maintenance, Software Evolution}
 
+
+\vspace{1.5cm}
+
 \maketitle
+
 
 $body$
 
