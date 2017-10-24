@@ -173,13 +173,13 @@ $endif$
 
 \author{Double Blind Review}
 \affiliation{%
-  \institution{.}
- \streetaddress{.}
-  \city{.} 
+  \institution{}
+ \streetaddress{}
+  \city{} 
   \state{} 
-  \postcode{//}
+  \postcode{}
 }
-\email{.}
+\email{}
 
 
 \renewcommand{\shorttitle}{Combining Code Metrics With Clone Detection For Faults Prevention and Resolution}

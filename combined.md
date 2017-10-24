@@ -2,7 +2,7 @@
 title: "CLEVER: Combining Code Metrics with Clone Detection for Just-In-Time Fault Prevention and 
 Resolution in Large Industrial Projects"
 bibliography: config/library.bib
-abstract:  "Abstract goes here"
+abstract:  "Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. Existing approaches leverage code and process metrics to build statistical models that can effectively prevent defect insertion and propose fixes in a software project. Metrics, however, may vary from one project to another, hindering the reuse of these models. Moreover, they tend to generate high false positive rates by classifying healthy commits as risky. Finally, they do not provide sufficient insights to developers on how to fix the detected risky commits. In this paper, we propose an approach, called CLEVER (Combining Levels of Bug Prevention and Resolution techniques), that relies on a two-phases process for intercepting risky commits before they reach the central repository.  The results show that CLEVER  can detect risky commits with 79% precision and 65% recall, which outperforms the performance of Commit-guru, a well-known approach (66% precision and 63% recall) on the same dataset. In addition, CLEVER is able to propose qualitative fixes to transform risky commits into non-risky ones with a 66.7% acceptance rate."
 author: 
 - name: Mathieu Nayrolles
   affiliation: La Forge Research Lab, Ubisoft
@@ -23,11 +23,11 @@ keyword:
 \section{Introduction}\label{sec:introduction}
 
 Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. A particular line of research focuses on the problem of preventing the introduction of faults by detecting risky commits (commits that may potentially introduce faults in the system) before reaching the central code repository. We refer to this as just-in-time fault detection/prevention.
-There exist techniques that aim to detect risky commits (e.g., [REF]), among which the most recent approach is the one proposed Rosen et al. [@Rosen2015]. The authors developed an approach and a supporting tool, Commit-guru, that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features. These models are used to classify new commits as risky or not. Commit-guru has been shown to outperform previous techniques (e.g., [@Kamei2013a; @Kpodjedo2010]).
+There exist techniques that aim to detect risky commits (e.g., [@Briand1999a; @Chidamber1994; @Subramanyam2003]), among which one recent approach is the one proposed Rosen et al. [@Rosen2015]. The authors developed an approach and a supporting tool, Commit-guru, that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features. These models are used to classify new commits as risky or not. Commit-guru has been shown to outperform previous techniques (e.g., [@Kamei2013a; @Kpodjedo2010]).
 
 Commit-guru and similar tools suffer from a number of limitations. First, they tend to generate high false positive rates by classifying healthy commits as risky. The second limitation is that they do not provide sufficient insights to developers on how to fix the detected risky commits. They simply return measurements that are often difficult to interpret by developers. In addition, they have been mainly validated using open source systems. Their effectiveness when applied to industrial systems has yet to be shown.
 
-In this paper, we propose an approach, called CLEVER (Combining Levels of Bug Prevention and Resolution techniques), that relies on a two-phase process for intercepting risky commits before they reach the central repository. The first phase consists of building a metric-based model to assess the likelihood that an incoming commit is risky or not. This is similar to existing approaches. The next phase relies on clone detection to compare code blocks extracted from risky commits (detected in the first phase) with those of known historical fault-introducing commits. This additional phase provides CLEVER with two apparent advantages over Commit-guru. First, as we will show in the evaluation section, CLEVER is able to reduce the number of false positives by relying on code matching instead of mere metrics. The second advantage is that, with CLEVER, it is possible to use commits that were used to fix  faults introduced by previous  commits to guide the developers on how to improve the risky commits at hand. This way, CLEVER goes one step further than Commit-guru (and similar techniques) by providing developers with a potential fix for their risky commits.
+In this paper, we propose an approach, called CLEVER (Combining Levels of Bug Prevention and Resolution techniques), that relies on a two-phases process for intercepting risky commits before they reach the central repository. The first phase consists of building a metric-based model to assess the likelihood that an incoming commit is risky or not. This is similar to existing approaches. The next phase relies on clone detection to compare code blocks extracted from risky commits (detected in the first phase) with those of known historical fault-introducing commits. This additional phase provides CLEVER with two apparent advantages over Commit-guru. First, as we will show in the evaluation section, CLEVER is able to reduce the number of false positives by relying on code matching instead of mere metrics. The second advantage is that, with CLEVER, it is possible to use commits that were used to fix  faults introduced by previous  commits to guide the developers on how to improve the risky commits at hand. This way, CLEVER goes one step further than Commit-guru (and similar techniques) by providing developers with a potential fix for their risky commits.
 
 Another important aspect of CLEVER is its ability to detect risky commits not only by comparing them to commits
 of a single project but also to those belonging to other projects that share common dependencies. This is important
@@ -35,7 +35,7 @@ in the context of an industrial project where  software systems tend to have man
 
 CLEVER was developed in collaboration with software developers from Ubisoft La Forge. Ubisoft is one of the world's largest video game development companies specializing  in the design and implementation of high-budget video games. Ubisoft software systems are highly coupled containing  millions of files and commits, developed and maintained by  more than 8,000 developers scattered across 29 locations in six continents.
 
-We tested CLEVER on 12 major Ubisoft systems. The results show that CLEVER  can detect risky commits with 79% precision and 65% recall, which outperforms the performance of Commit-guru, which  is 66% precision and 63% recall when applied to the same dataset. In addition, more than XX% of the proposed fixes were judged highly relevant by Ubisoft software developers, making CLEVER an effective and practical approach for the detection and resolution of risky commits.
+We tested CLEVER on 12 major Ubisoft systems. The results show that CLEVER  can detect risky commits with 79% precision and 65% recall, which outperforms the performance of Commit-guru (66% precision and 63% recall) when applied to the same dataset. In addition, 66.7% of the proposed fixes were accepted by a least one  Ubisoft software developer, making CLEVER an effective and practical approach for the detection and resolution of risky commits.
 
 The remaining parts of this paper are organised as follows. In Section \ref{sec:relwork}, we present related work. Sections \ref{sec:CLEVERT},  \ref{sec:exp} and \ref{sec:result} are dedicated to describing the CLEVER approach, the case study setup, and the case study results.
 Then, Sections \ref{sec:threats} and \ref{sec:conclusion} present the threats to validity and a conclusion accompanied with future work.
@@ -46,7 +46,7 @@ Our approach, CLEVER, is related to two research areas: defect prediction and pa
 
 ## File, Module and Risky Change Prediction
 
-Existing studies for predicting risky changes within a repository rely mainly on code and process metrics. As discussed in the introduction section, Rosen et al. [@Rosen2015]  developed  Commit-guru a tool that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features.  There exist other studies that leverage code several  metric suites such as the CK metrics suite [@Chidamber1994] or the Briand's coupling metrics [@Briand1999a]. These metrics have been used, with success, to predict defects  as shown by Subramanyam *et al.* [@Subramanyam2003] and Gyimothy *et al.* [@Gyimothy2005].
+Existing studies for predicting risky changes within a repository rely mainly on code and process metrics. As discussed in the introduction section, Rosen et al. [@Rosen2015]  developed  Commit-guru a tool that relies on building  models from historical commits using code and process metrics (e.g., code complexity, the experience of the developers, etc.) as the main features.  There exist other studies that leverage several code metric suites such as the CK metrics suite [@Chidamber1994] or the Briand's coupling metrics [@Briand1999a]. These metrics have been used, with success, to predict defects  as shown by Subramanyam *et al.* [@Subramanyam2003] and Gyimothy *et al.* [@Gyimothy2005].
 
 Further improvements to these metrics have been proposed by Nagappan *et al.* [@Nagappan2005; @Nagappan2006]  and  Zimmerman *et al.* [@Zimmermann2007; @Zimmermann2008] who used  call graphs as the main artifact for computing code metrics with a static analyzer.
 
@@ -54,42 +54,43 @@ Nagappan *et al.* et proposed a technique that uses data mined from source code 
 
 Other studies that aim to predict risky changes use the entropy of a given change [@Hassan2009] and the size of the change combined with files being changed [@Kamei2013].
 
-These techniques operate at different levels of the systems and may require the presence of the entire source code. In addition, the reliance of metrics may result of false positives. We need a way to to validate whether a suspicious change is indeed risky.  In this paper,  we address this issue using a two-phase process that combines the use of metrics to detect suspicious risky changes, and code matching to increase the detect accuracy. As we will show in the evaluation section, CLEVER reduces the number of false positives while keeping good accuracy. In addition, CLEVER  operates at commit-time for preventing the introduction of faults before they reach the code repository. Through interactions with Ubisoft developers, we found that this integrates well with the workflow of developers. 
+These techniques operate at different levels of the systems and may require the presence of the entire source code. In addition, the reliance of metrics may result in high false positives rates. We need a way to to validate whether a suspicious change is indeed risky.  In this paper,  we address this issue using a two-phase process that combines the use of metrics to detect suspicious risky changes, and code matching to increase the detect accuracy. As we will show in the evaluation section, CLEVER reduces the number of false positives while keeping good recall. In addition, CLEVER  operates at commit-time for preventing the introduction of faults before they reach the code repository. Through interactions with Ubisoft developers, we found that this integrates well with the workflow of developers. 
 
 ## Automatic Patch Generation
 
 One feature of CLEVER  is the ability to propose fixes that can help developers correct the detected risky commit. This is similar in principle to the work on automatic patch generation.
-Pan *et al.* and  Kim *et al.* proposed two approaches that extract and apply fix patterns [REF]. Pan *et al.*  identified 27 patterns and were able to fix 45.7% - 63.6% of bugs using of the proposed patterns.
+Pan *et al.* and  Kim *et al.* proposed two approaches that extract and apply fix patterns [@Pan2008; @Kim2013]. Pan *et al.*  identified 27 patterns and were able to fix 45.7% - 63.6% of bugs using one of the proposed patterns.
 The patterns found by Kim *et al.* are mined from human-written patches and were able to successfully generate patches for 27 out of 119 bugs. The tool by Kim *et al.*, named PAR, is similar to the second part of CLEVER where we propose fixes. Our approach also mines potential fixes from human-written patches found in the historical data. In our work, we do not generate patches,  but instead  propose known patches to developers for further assessment. It has also been shown that patch generation is useful in understanding and debugging the causes of faults [@tao2014automatically]. 
 
-Despite the advances in the field of automatic patch generation, this task remains overly complex. Developers expect from tools high quality patches that can be safely deployed. Many studies proposed a classification of what is considered  an acceptable quality patch for an automatically generated patch technique to be adopted in industry [@Dallmeier; @le2012systematic; @le2015should].
+Despite the advances in the field of automatic patch generation, this task remains overly complex. Developers expect from tools high quality patches that can be safely deployed. Many studies proposed a classification of what is considered  an acceptable quality patch for an automatically generated patch to be adopted in industry [@Dallmeier; @le2012systematic; @le2015should].
 
 # The CLEVER Approach {#sec:CLEVERT}
 
 Figures \ref{fig:CLEVERT1}, \ref{fig:CLEVERT3} and \ref{fig:CLEVERT2} show an overview of the CLEVER approach, which consists of two parallel processes.
 
-In the first process (Figures \ref{fig:CLEVERT1} and \ref{fig:CLEVERT3}), CLEVER manages events happening on project tracking systems to extract fault-introducing commits and commits used to  provide the corresponding fixes. For simplicity reasons, in the rest of this paper, we refer to commits that are used to fix defects as _fix-commits_.
+In the first process (Figures \ref{fig:CLEVERT1} and \ref{fig:CLEVERT3}), CLEVER manages events happening on project tracking systems to extract fault-introducing commits and commits and their corresponding fixes. For simplicity reasons, in the rest of this paper, we refer to commits that are used to fix defects as _fix-commits_.
 We use the term _defect-commit_ to mean a commit that introduces a fault.
 
 The project tracking component of CLEVER listens to bug (or issue) closing events of Ubisoft projects.
-Currently,CLEVER is tested with 12 large projects within Ubisoft.
+Currently, CLEVER is tested with 1 large project within Ubisoft and have been evaluated with 11 other large projects.
 These projects share many dependencies.
 We clustered them based on their dependencies with the aim to improve the accuracy of CLEVER.
-This clustering step is important in order to identify faults that may exist due to dependencies, while enhancing the quality of the proposed fixes.  Applying CLEVER to projects that are not related to each other may turn to be ineffective.
+This clustering step is important in order to identify faults that may exist due to dependencies, while enhancing the quality of the proposed fixes.  Applying CLEVER to projects that are not related to each other is ineffective as shown in our experiments.
 
 \input{tex/approach}
 
-In the second process (Figure \ref{fig:CLEVERT2}), CLEVER intercepts incoming commits before leaving the developers' workstation using the concept of pre-commit hooks. A pre-commit hook is a script that is executed at commit-time and it is supported by most major code versioning systems such as Github. There are two types of hooks: client-side and server-side. Client-side hooks are triggered by operations such as committing and merging, whereas server-side hooks run on network operations such as receiving pushed commits. These hooks can be used for different purposes such as checking compliance with coding rules, or the automatic execution of unit tests. A pre-commit hook runs before a developer specifies a commit message.
+In the second process (Figure \ref{fig:CLEVERT2}), CLEVER intercepts incoming commits before they leave developers' workstations using the concept of pre-commit hooks. A pre-commit hook is a script that is executed at commit-time and it is supported by most major code versioning systems such as _Git_. There are two types of hooks: client-side and server-side. Client-side hooks are triggered by operations such as committing and merging, whereas server-side hooks run on network operations such as receiving pushed commits. These hooks can be used for different purposes such as checking compliance with coding rules, or the automatic execution of unit tests. A pre-commit hook runs before a developer specifies a commit message.
 
-Ubisoft's developers use pre-commit hooks for all sorts of reasons such as identifying the tasks that are addressed by the commit at hand, specifying the reviewers who review the commit, and so on. Implementing this part of CLEVER as a pre-commit hook is an important step towards the integration of CLEVER with the workflow of developers at Ubisoft. The developers  do not have to download, install, and understand additional tools in order to use CLEVER.
+Ubisoft's developers use pre-commit hooks for all sorts of reasons such as identifying the tasks that are addressed by the commit at hand, specifying the reviewers who will review the commit, and so on. Implementing this part of CLEVER as a pre-commit hook is an important step towards the integration of CLEVER with the workflow of developers at Ubisoft. The developers  do not have to download, install, and understand additional tools in order to use CLEVER.
 
 Once the commit is intercepted, we compute code and process metrics associated with this commit. The selected metrics are discussed further in Section \ref{sec:offline}. The result is a feature vector (Step 4) that is used for classifying the commit as _risky_ or _non-risky_.
 
-If  the commit is classified as _non-risky_, then the process stops, and the commit can be transferred from the developer's workstation to the central repository. _Risky_ commits, on the other hand, are further analysed in order to reduce the number of false positives (healthy commits that are detected as risky). We achieve this by first extracting the code block that is modified by the developer in order to apply the commit and then comparing it to code blocks of known fault-introducing commits.
+If  the commit is classified as _non-risky_, then the process stops, and the commit can be transferred from the developer's workstation to the central repository. _Risky_ commits, on the other hand, are further analysed in order to reduce the number of false positives (healthy commits that are detected as risky). We achieve this by first extracting the code blocks that are modified by the developer and then compare them to code blocks of known fault-introducing commits.
 
 ## Clustering Projects {#sec:clustering}
 
-We cluster projects according to their dependencies. The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:CLEVERT3}. A node corresponds to a project that is connected to other projects on which it depends. Dependencies can be _external_ or _internal_ depending on whether the products are created in-house or supplied by a third-party. For confidentiality reasons, we cannot reveal the name of the projects involved in the project dependency graph. We show the 12 projects in yellow color with their dependencies in blue color in Figure \ref{fig:dep-graph}. The resulting partitioning is shown in Figure \ref{fig:network-sample}.
+We cluster projects according to their dependencies. The rationale is that projects that share dependencies are most likely to contain defects caused by misuse of these dependencies. In this step, the project dependencies are analysed and saved into a single NoSQL graph database as shown in Figure \ref{fig:CLEVERT3}. A node corresponds to a project that is connected to other projects on which it depends. Dependencies can be _external_ or _internal_ depending on whether the products are created in-house or supplied by a third-party. For confidentiality reasons, we cannot reveal the name of the projects involved in the project dependency graph. We show the 12 projects in yellow color with their dependencies in blue color in Figure \ref{fig:dep-graph}. In total, we discovered 405 distinct dependencies that internal and external both. 
+The resulting partitioning is shown in Figure \ref{fig:network-sample}.
 
 \input{tex/dependencies}
 
@@ -103,7 +104,7 @@ Once the project dependency graph is extracted, we use a clustering algorithm to
 
 To build our database of code blocks that are related to defect-commits and fix-commits, we first need to identify the respective commits. Then, we extract the relevant blocks of code from the commits.
 
-**Extracting Commits:** CLEVER listens to issue closing events happening on the project tracking system used at Ubisoft. Every time an issue is closed, CLEVER retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). To link fix-commits and their related issues we implemented the SZZ algorithm presented by Kim et al. [@Kim2006c].
+**Extracting Commits:** CLEVER listens to issue closing events happening on the project tracking system used at Ubisoft. Every time an issue is closed, CLEVER retrieves the commit that was used to fix the issue (the fix-commit) as well as the one that introduced the defect (the defect-commit). To link fix-commits and their related issues we implemented the well-known SZZ algorithm presented by Kim et al. [@Kim2006c].
 
 **Extracting Code Blocks:**  Algorithm \ref{alg:extract} presents an overview of how to extract blocks. This algorithm receives as arguments, the changesets and the blocks that have been previously extracted.
 Then, Lines 1 to 5 show the $for$ loop that iterates over the changesets.
@@ -131,18 +132,18 @@ int initprocesstree_sysdep
 Therefore, we need to expand the changeset to the left (or right) to have syntactically correct blocks.
 We do so by checking the block's beginning and ending with parentheses algorithms [@bultena1998eades].
 
-## Building a Metric-Based Model
+## Building a Metric-Based Model {#sec:metric-based}
 
 We adapted Commit-guru [@Rosen2015] for building the metric-based model. Commit-guru uses a list of keywords proposed by Hindle *et al.* [@Hindle2008] to classify commit in terms of _maintenance_, _feature_ or _fix_.
 Then, it uses the SZZ algorithm to find the defect-commit linked to the fix-commit. For each defect-commit, Commit-guru computes the following code metrics: _la_ (lines added), _ld_ (lines deleted), _nf_ (number of modified files), _ns_ (number of modified subsystems), _nd_ (number of modified directories), _en_ (distriubtion of modified code across each file), _lt_ (lines of code in each file (sum) before the commit), _ndev_ (the number of developers that modifed the files in a commit), _age_ (the average time interval between the last and current change), _exp_ (number of changes previously made by the author ), _rexp_ (experience weighted by age of files (1 / (n + 1))), _sexp_ (previous  changes made by the author in the same subsystem), _loc_ (total number of modified LOC across all files), _nuc_ (number of unique changes to the files). Then, a statistical model is built using the metric values of the defect-commits. Using linear regression, Commit-guru is able to predict whether incoming commits are _risky_ or not.
 
-We had to modify Commit-guru to fit the context of this study. First, we used information found in Ubisoft's internal project tracking system used at Ubisoft to classify the purpose of a commit (i.e., _maintenance_, _feature_ or _fix_). In other words, CLEVER only classifies a commit as a defect-commit if it is the root cause of a fix linked to a crash in the internal project tracking system. Using internal pre-commit hooks, Ubisoft developers must link every commit to a given task #ID. If the task #ID entered by the developer matches a bug or crash report within the project tracking system, then we perform the SCM blame/annotate function on all the modified lines of code for their corresponding files on the fix-commit's parents. This returns the commits that previously modified these lines of code, and are flagged as defect-commits. Another modification consists of the actual classification algorithm. We did not use linear regression but instead the random forest algorithm. The random forest algorithm turned out to be more effective as described in Section \ref{sec:result}. Finally, we had to rewrite Commit-guru in GoLang for performance and internal reasons.
+We had to modify Commit-guru to fit the context of this study. First, we used information found in Ubisoft's internal project tracking system used to classify the purpose of a commit (i.e., _maintenance_, _feature_ or _fix_). In other words, CLEVER only classifies a commit as a defect-commit if it is the root cause of a fix linked to a crash in the internal project tracking system. Using internal pre-commit hooks, Ubisoft developers must link every commit to a given task #ID. If the task #ID entered by the developer matches a bug or crash report within the project tracking system, then we perform the SCM blame/annotate function on all the modified lines of code for their corresponding files on the fix-commit's parents. This returns the commits that previously modified these lines of code, and are flagged as defect-commits. Another modification consists of the actual classification algorithm. We did not use linear regression but instead the random forest algorithm. The random forest algorithm turned out to be more effective as described in Section \ref{sec:result}. Finally, we had to rewrite Commit-guru in GoLang for performance and internal reasons.
 
 ## Comparing Code Blocks  {#sec:online}
 
 Each time a developer makes a commit, CLEVER intercepts it using a pre-commit hook and classifies it as _risky_ or not.
-If the commit is classified as _risky_ by the metric-based classifier, then, we extract the corresponding code block (in a similar way as in the previous phase), and compars it to the code blocks of historical defect-commits.
-If there is a match, then the new commit is deemed to be risky. A threshold $S$ is used to assess the extent beyond which two commits are considered similar.
+If the commit is classified as _risky_ by the metric-based classifier, then, we extract the corresponding code block (in a similar way as in the previous phase), and compare it to the code blocks of historical defect-commits.
+If there is a match, then the new commit is deemed to be risky. A threshold $\alpha$ is used to assess the extent beyond which two commits are considered similar.
 
 To compare the extracted blocks to the ones in the database, we resort to clone detection techniques, more specifically, text-based clone detection techniques. This is because lexical and syntactic analysis approaches (alternatives to text-based comparisons) would require a complete program to work, i.e., a program that compiles.
 In the relatively wide-range of tools and techniques that exist to detect clones by considering code as text [@Johnson1993;  @Johnson1994; @Marcus; @Manber1994; @StephaneDucasse; @Wettel2005],  we chose the NICAD clone detector because it is freely available and has shown to perform well [@Cordy2011].
@@ -156,15 +157,16 @@ The extracted, pretty-printed, normalized filtered blocks are marked as potentia
 
 ## Classifying Incoming Commits
 
-As discusses in Section XXXX, a new commit goes through the metric-based model first (Steps 1 to 4). If classified  as _non-risky_, we simply let it through, and we stop the process. If the commit is classified as _risky_, however, we continue the process with  Steps 5 to 9 our approach.
+As discusses in Section \ref{sec:metric-based}, a new commit goes through the metric-based model first (Steps 1 to 4). If the commit is classified as _non-risky_, we simply let it through, and we stop the process. If the commit is classified as _risky_, however, we continue the process with Steps 5 to 9 our approach.
 
-One may wonder why we needed to have a metric-based model in the first place. we could have resorted to clone detection as the main mechanism. The main reason for having the metric-based model is efficiency. If each commit had to be analysed against all known signatures using code clone similarity, then, it would have made CLEVER time consuming.
+One may wonder why we needed to have a metric-based model in the first place. We could have resorted to clone detection as the main mechanism. The main reason for having the metric-based model is efficiency. If each commit had to be analysed against all known signatures using code clone similarity, then, it would have made CLEVER time consuming. We estimate that, in an average workday, if all commits had to be compared against all signatures on our cluster it would take around 25 minutes to process a commit.
+In comparison, it takes, in average, 3.75 seconds with the current approach.
 
 ## Proposing Fixes
 
-An important aspect in the design of CLEVER is the ability to provide guidance to developers on how to improve risky commits. We achieve this by extracting from the database the fix-commit corresponding to the matching defect-commit and present it to the developer. We believe that this makes CLEVER a practical approach. Developers can understand why a given modification has been reported as risky by looking at code instead of simple metrics as in the case of the studies reported in [@Kamei2013a; @Rosen2015]).
+An important aspect in the design of CLEVER is the ability to provide guidance to developers on how to improve risky commits. We achieve this by extracting from the database the fix-commit corresponding to the top 1 matching defect-commit and present it to the developer. We believe that this makes CLEVER a practical approach. Developers can understand why a given modification has been reported as risky by looking at code instead of simple metrics as in the case of the studies reported in [@Kamei2013a; @Rosen2015].
 
-Finally, using the fixes of past defects, we can provide a solution, in the form of a contextualised diff, to the developers. A contextualised diff is a diff that is modified to match the current workspace of the developer regarding variable types and names. In Step 8 of Figure 3, we adapt the matching fixes to the actual context of the developer by modifying indentation depth and variable name in an effort to reduce context switching. We believe that this would make it easier for developers to understand the proposed fixes and see if they apply in their situation.
+Finally, using the fixes of past defects, we can provide a solution, in the form of a contextualised diff, to the developers. A contextualised diff is a diff that is modified to match the current workspace of the developer regarding variable types and names. In Step 8 of Figure 3, we adapt the matching fixes to the actual context of the developer by modifying indentation depth and variable name in an effort to reduce context switching. We believe that this would make it easier for developers to understand the proposed fixes and see if it applies in their situation.
 
 # Case Study Setup {#sec:exp}
 
@@ -178,7 +180,7 @@ In collaboration with Ubisoft developers, we selected 12 major software projects
 
 Figure \ref{fig:dep-graph} shows the project dependency graph.
 As shown in Figure \ref{fig:dep-graph}, these projects are highly interconnected.
-A review of each cluster shows that this partitioning divides projects in terms of their high-level functionalities. For example, one cluster is related to a particular given family of video games, whereas the other cluster refers to another family. We showed this partitioning to 11 experienced software developers and ask them to validate it. They all agreed that the results of this automatic clustering is accurate and reflects well the various projects group of the company.
+A review of each cluster shows that this partitioning divides projects in terms of their high-level functionalities. For example, one cluster is related to a particular given family of video games, whereas the other cluster refers to another family. We showed this partitioning to 11 experienced software developers and ask them to validate it. They all agreed that the results of this automatic clustering is accurate and reflects well the various projects groups of the company.
 
 ## Building a Database of Defect-Commits and Fix-Commits {#sub:golden}
 
@@ -195,7 +197,8 @@ At time $t_1$, commit $c_1$ in project $p_1$ introduces a defect.
 The defect is experienced by a user that reports it via an issue $i_1$ at $t_2$.
 A developer fixes the defect introduced by $c_1$ in commit $c_2$ and closes $i_1$ at $t_3$.
 From $t_3$ we known that $c_1$ introduced a defect using the process described in Section \ref{sub:golden}.
-If at $t_4$, $c_3$ is pushed to $p_2$ and $c_3$ matches $c_1$ after preprocessing, pretty-printing and formatting, then $c_3$ is classified as _risky_ by CLEVER and $c_2$ is proposed to the developer as a potential solution for the defect introduced in $c_3$.
+If at $t_4$, $c_3$ is pushed to $p_2$ and classify by the metric-based classifier as _risky_, we extract $c_3$ blocks and compares them with the ones of $c_1$. 
+If $c3$ and $c1$ are a match after preprocessing, pretty-printing and formatting, then $c_3$ is classified as _risky_ by CLEVER and $c_2$ is proposed to the developer as a potential solution for the defect introduced in $c_3$.
 
 ## Evaluation Measures
 
@@ -214,13 +217,13 @@ It is worth mentioning that, in the case of defect prevention, false positives c
 
 In this section, we show the effectiveness of CLEVER in detecting risky commits using a combination of metric-based models and clone detection. The main research question addressed by this case study is: _Can we detect risky commits by combining metrics and code comparison within and across related Ubisoft projects, and if so, what would be the accuracy?_
 
-The experiments took nearly two months using a cluster of six 12 3.6 Ghz cores with 32GB of RAM. The most time consuming part of the experiment consists of building the baseline as each commit must be analysed with the SZZ algorithm. Once the baseline was established, the model built, it took, on average, 3.75 seconds to analyse an incoming commit on our cluster.
+The experiments took nearly two months using a cluster of six 12 3.6 Ghz cores with 32GB of RAM each. The most time consuming part of the experiment consists of building the baseline as each commit must be analysed with the SZZ algorithm. Once the baseline was established, the model built, it took, on average, 3.75 seconds to analyse an incoming commit on our cluster.
 
 In the following subsections, we provide insights on the performance of CLEVER by comparing it to Commit-guru [@Rosen2015] alone, i.e., an approach that relies only on metric-based models. We chose Commit-guru because it has been shown to outperform other techniques (e.g., [@Kamei2013a; @Kpodjedo2010]). Commit-guru is also open source and easy to use.
 
 ## Performance of CLEVER
 
-when applied to  12 Ubisoft projects, CLEVER detects risky commits with an average precision, recall, and F1-measure of 79.10%, a 65.61%, and  71.72% respectively. For clone detection, we used a threshold of 30\% . This is because Roy et al.[REF] showed through empirical studies that using NICAD with a threshold of around 30%, the default setting, provides good results for the detection of Type 3 clones. When applied to the same projects, Commit-guru achieves an average precision, recall, and F1-measure of 66.71%, 63.01% and 64.80%, respectively.
+when applied to  12 Ubisoft projects, CLEVER detects risky commits with an average precision, recall, and F1-measure of 79.10%, a 65.61%, and  71.72% respectively. For clone detection, we used a threshold of 30\% . This is because Roy _et al._ [@Roy2008] showed through empirical studies that using NICAD with a threshold of around 30%, the default setting, provides good results for the detection of Type 3 clones. When applied to the same projects, Commit-guru achieves an average precision, recall, and F1-measure of 66.71%, 63.01% and 64.80%, respectively.
 
 We can see that the second phase of CLEVER (clone detection) considerably reduces the number of false positives (precision of 79.10% for CLEVER compared to 66.71% for Commit-guru), while achieving similar recall (65.61% for CELEVER compared to 63.01% for Commit-guru).
 
@@ -236,45 +239,43 @@ With our approach, the _similarity_ between projects is computed automatically a
 The left sides or the graph are low cutoff (aggressive) while the right sides are high cutoff (conservative).
 The area under the ROC curves are 0.817, 0.763 and 0.806 for the blue, yellow and red clusters, respectively.
 In other words, if we train a classifier with historical data from system in the same cluster as the targeted systems, then we do not have to wait to start classifying incoming commits.
+To confirm this, we ran an experiment with the blue cluster where we first apply the model learnt from other members of the cluster for the first thousand commits. The performance of this model is 75.1% precision, 57.6% recall for the first thousand commits.
+To evaluate the added performance obtained via the cluster, we ran the same experiment but using a model built with data from the red cluster on the last project of the blue cluster. 
+The results are shown in Figure \ref{fig:redonblue}.
+While the AUC for the recall versus the specificity stays in acceptable range at 0.708, we see a drastic decrease in the obtained precision. 
+Indeed, the precision never surpasses 30% (for a recall of 3%).   
 
 \input{tex/clusterRoc}
 \input{tex/workshop.tex}
-
-These results show that not only the clusters are effective in identifying similar projects for defect learning transfer but also provide excellent performance while starting a new project. As new projects mature, their defects would be integrated into the model in order to improve it. To confirm this, we ran an experiment with the blue cluster where we first apply the model learnt from other members of the cluster for the first thousand commits. The performance of this model is 75.1% precision, 57.6% recall for the first thousand commits.
-
-After the first thousand commits, we take the commits of the day (for each day until the end of the project) and rebuild the model by adding the commits of the day to the ones already known from the clusters.
-Overall, combining the commits from the project at hand in a nightly fashion with the commits known from the cluster allowed to correctly classify an additional 2.05\% of commits in the last 30\% of the project life compared to only using the commits from the project.  This shows that, in addition to providing a viable alternative to a cold-start, our clusters also allow us to enhance the performance of the model at all time and no only at the start.
 
 ## Analysis of the Quality of the Fixes Proposed by CLEVER
 
 In order to validate the quality of the fixes proposed by CLEVER, we conducted an internal workshop where we invited a number of Ubisoft development team. The workshop was attended by six participants: two software architects, two developers, one technical lead, and one IT project manager. The participants have many years of experience at Ubisoft.
 
-In this workshop, the participants were asked to assess the quality of proposed fixed. We presented them with the original buggy commits, the original fixes for these commits, and the fixes that are automatically extracted by CLEVER.
-
 The participants were asked to review 12 randomly selected fixes that were proposed by CLEVER. These fixes are related to one system in which the participants have excellent knowledge. We presented them with the original buggy commits, the original fixes for these commits, and the fixes that were automatically extracted by CLEVER. We asked them the following questions _"Is the proposed fix applicable in the given situation?"_ for each fix.
 
-The review session took around 70 minutes. This does not include the time it took to explain the objective of the session, the setup, the collection of their feedback, etc.
+The review session took around 60 minutes. This does not include the time it took to explain the objective of the session, the setup, the collection of their feedback, etc.
 
 We asked the participants to rank each fix that is proposed by CLEVER using this scheme:
 
-- Fix Accepted: The participant found the fix proposed by CLEVER applicable to the risky commit
+- Fix Accepted: The participant found the fix proposed by CLEVER applicable to the risky commit.
 - Unsure: In this situation, the participant is unsure about the relevance of the fix. There might be a need for more information to arrive to a verdict.
-- Fix Rejected: The participant found the fix is not applicable to  the risky commit
+- Fix Rejected: The participant found the fix is not applicable to  the risky commit.
 
-Table \ref{tab:Workshop} shows answers of the participants. The columns refer to the fixes proposed by CLEVER, whereas the rows refer to the participants that we denote using P1, P2, ..., P6.  As we can from the table, 41.6% of the proposed fixes (F1, F3, F6, F10 and F12) have been accepted by all participants, while 25% have been accepted by at least one member (F4, F8, F11). We analysed the fixes that were rejected by some or all participants to understand the reasons.
+Table \ref{tab:Workshop} shows answers of the participants. The columns refer to the fixes proposed by CLEVER, whereas the rows refer to the participants that we denote using P1, P2, ..., P6.  As we can see from the table, 41.6% of the proposed fixes (F1, F3, F6, F10 and F12) have been accepted by all participants, while 25% have been accepted by at least one member (F4, F8, F11). We analysed the fixes that were rejected by some or all participants to understand the reasons.
 
-$F2$ was rejected by our participants because the region of the commit that triggered a match is a generated code. Although this generated code was pushed into the repositories as part of bug fixing commit, the root cause of the bug lies in the code generator itself. Our proposed fix suggests to update the generated code. Because the proposed fix did not apply directly to the  the question we ask our reviewers was _"Is the proposed fix applicable in the given situation?"_.
+$F2$ was rejected by our participants because the region of the commit that triggered a match is a generated code. Although this generated code was pushed into the repositories as part of bug fixing commit, the root cause of the bug lies in the code generator itself. Our proposed fix suggests to update the generated code. Because the proposed fix did not apply directly to the  the question we ask our reviewers was _"Is the proposed fix applicable in the given situation?"_ they rejected it.
 In this occurrence, the proposed fix was not applicable.
 
-$F4$ was accepted by two reviewers and marked as unsure ($-$) by the other participant. We believe that this was due the lack of context surrounding the proposed fix. The participants were unable to determine if the fix was applicable or not without knowing what the original intent of the buggy commit was. In our review session, we only provided the reviewers with the regions of the commits that matched existing commits and not the full commit. Full commits can be quite lengthy as they can contain asset descriptions and generated code, in addition to the actual code. In this occurrence, the full context of the commit might have helped our reviewers to decide if the $F4$ was applicable or not. $F5$ and $F7$ were classified as unsure by all our participants for the same reasons.
+$F4$ was accepted by two reviewers and marked as unsure by the other participants. We believe that this was due the lack of context surrounding the proposed fix. The participants were unable to determine if the fix was applicable or not without knowing what the original intent of the buggy commit was. In our review session, we only provided the reviewers with the regions of the commits that matched existing commits and not the full commit. Full commits can be quite lengthy as they can contain asset descriptions and generated code, in addition to the actual code. In this occurrence, the full context of the commit might have helped our reviewers to decide if the $F4$ was applicable or not. $F5$ and $F7$ were classified as unsure by all our participants for the same reasons.
 
 $F8$ was rejected by four of participants and accepted by two. The participant argued that the proposed fix was more a refactoring opportunity than an actual fix.
 
-$F12$ was marked as unsure by all the reviewers because the code had to do with a subsystem that is maintained by another team and the participants felt that it is out of scope of this session.
+$F12$ was marked as unsure by all the reviewers because the code had to do with a subsystem that is maintained by another team and the participants felt that it was out of scope of this session focusing on their system.
 
-After the session, we asked the participants two additional questions: _Will you use CLEVER in the future?_ and _What aspects of CLEVER need to be improved?_.
+After the session, we asked the participants two additional questions: _Will you use CLEVER in the future?_ and _What aspects of CLEVER need to be improved?_
 
-The participants answered the first question positively. They all agreed that CLEVER could be a good tool for intercepting risky commits, and hence improving the quality assurance process. For the second question, the participants expressed concerns about the context surrounding the buggy commits and the fixes. While displaying the entire commits is not a solution, according to the participants, some context might be inferred from the commit messages and the issues associated with the fixes in the bug tracking systems. The second limitation of CLEVER is its inability to deal with generated code. At this point, CLEVER points towards the code generated code rather than the code generator. These aspects of CLEVER needs to be improved.
+The participants answered the first question positively. They all agreed that CLEVER could be a good tool for intercepting risky commits, and hence improving the quality assurance process. For the second question, the participants expressed concerns about the context surrounding the buggy commits and the fixes. While displaying the entire commits is not a solution, according to the participants, some context might be inferred from the commit messages and the issues associated with the fixes in the bug tracking systems. The second limitation of CLEVER is its inability to deal with generated code. At this point, CLEVER points towards the  generated code rather than the code generator. These aspects of CLEVER needs to be improved.
 
 # Discussion {#sec:threats}
 
@@ -284,7 +285,7 @@ In this section, we propose a discussion on limitations and threats to validity.
 
 We identified two main limitations of our approach, CLEVER, which require further studies.
 
-CLEVER is designed to work on multiple related systems. Applying CLEVER on a single system will most likely be less effective. The the two-phase classification process of CLEVER would be hindered by the fact that it is unlikely to have a large number of similar bugs within the same system. For single systems, we recommend the use of metric-based models. A metric-based solution, however, may turn to be ineffective when applied across systems because of the difficulty associated with identifying common thresholds that are applicable to a wide range of systems.
+CLEVER is designed to work on multiple related systems. Applying CLEVER on a single system will most likely be less effective. The the two-phases classification process of CLEVER would be hindered by the fact that it is unlikely to have a large number of similar bugs within the same system. For single systems, we recommend the use of metric-based models. A metric-based solution, however, may turn to be ineffective when applied across systems because of the difficulty associated with identifying common thresholds that are applicable to a wide range of systems.
 
 The second limitation we identified has to do with the fact that CLEVER is designed to work with Ubisoft systems. Ubisoft uses C\#, C, C++, Java and other internally developed languages. It is however common to have  other languages used in an environment with many inter-related systems. We intend to extend CLEVER to process commits from other languages as well.
 
@@ -312,10 +313,10 @@ If a fix is never used by the end-users, then we could remove it from the cluste
 For security and confidentiality reasons we cannot provide a reproduction package that will inevitably involve Ubisoft's copyrighted source code.
 However, the CLEVER source code is in the process of being open-sourced and will be soon available at https://github.com/ubisoftinc.
 
-# Acknowledgments
-
+\begin{acks}
 We are thankful to Olivier Pomarez, Yves Jacquier, Nicolas Fleury, Alain Bedel, Mark Besner, David Punset, Paul Vlasie, Cyrille Gauclin, Luc Bouchard, Chadi Lebbos and Florent Jousset, Anthony Brien, Thierry Jouin and Jean-Pierre Nolin from Ubisoft for their participations in validating CLEVER hypothesis, efficiency and proposed fixes.
+\end{acks}
 
 \section*{References}
 <!-- End Footnotes text -->
-\setlength{\parindent}{0pt}
+\setlength{\parindent}{0pt} 
