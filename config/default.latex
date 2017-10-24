@@ -227,6 +227,7 @@ $abstract$
 \maketitle
 
 
+\vspace{1.5cm}
 $body$
 
 \bibliographystyle{ACM-Reference-Format}
