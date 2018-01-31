@@ -15,7 +15,7 @@
 \newcommand{\wahab}[1]{\textcolor{blue}{\\ \\Wahab: #1}}
 \newcommand{\mathieu}[1]{\textcolor{blue}{\\ \\Mathieu: #1}}
 
-\usepackage[font=small,skip=2pt]{caption}
+\usepackage[skip=5pt]{caption}
 
 $if(linestretch)$
 \usepackage{setspace}
@@ -158,7 +158,7 @@ $endif$
 
 \usepackage{booktabs}
 \setcopyright{rightsretained}
-\acmConference[ICSE'18]{ACM ICSE Conference}{May 2018}{Gothemburg, Sweden} 
+\acmConference[MSR'18]{ACM MSR Conference}{May 2018}{Gothemburg, Sweden} 
 \acmYear{018}
 \copyrightyear{2018}
 
@@ -229,6 +229,8 @@ $abstract$
 
 \vspace{1.5cm}
 $body$
+
+
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{$bibliography$}

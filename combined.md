@@ -2,7 +2,7 @@
 title: "CLEVER: Combining Code Metrics with Clone Detection for Just-In-Time Fault Prevention and 
 Resolution in Large Industrial Projects"
 bibliography: config/library.bib
-abstract:  "Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. Existing approaches leverage code and process metrics to build metric-based models that can effectively prevent defect insertion in a software project. Metrics, however, may vary from one project to another, hindering the reuse of these models. Moreover, they tend to generate high false positive rates by classifying healthy commits as risky. Finally, they do not provide sufficient insights to developers on how to fix the detected risky commits. In this paper, we propose an approach, called CLEVER (Combining Levels of Bug Prevention and Resolution techniques), which relies on a two-phases process for intercepting risky commits before they reach the central repository. CLEVER was developed in collaboration with Ubisoft developers. When applied to 12 Ubisoft systems, the results show that CLEVER  can detect risky commits with 79% precision and 65% recall, which outperforms the performance of Commit-guru, a recent approach that was proposed in the literature. In addition, CLEVER is able to recommend qualitative fixes to developers on how to fix risky commits in 66.7% of the cases."
+abstract:  "Automatic prevention and resolution of faults is an important research topic in the field of software maintenance and evolution. Existing approaches leverage code and process metrics to build metric-based models that can effectively prevent defect insertion in a software project. Metrics, however, may vary from one project to another, hindering the reuse of these models. Moreover, they tend to generate high false positive rates by classifying healthy commits as risky. Finally, they do not provide sufficient insights to developers on how to fix the detected risky commits. In this paper, we propose an approach, called CLEVER (Combining Levels of Bug Prevention and Resolution techniques), which relies on a two-phase process for intercepting risky commits before they reach the central repository. CLEVER was developed in collaboration with Ubisoft developers. When applied to 12 Ubisoft systems, the results show that CLEVER  can detect risky commits with 79% precision and 65% recall, which outperforms the performance of Commit-guru, a recent approach that was proposed in the literature. In addition, CLEVER is able to recommend qualitative fixes to developers on how to fix risky commits in 66.7% of the cases."
 author: 
 - name: Mathieu Nayrolles
   affiliation: La Forge Research Lab, Ubisoft
@@ -268,25 +268,58 @@ Table \ref{tab:Workshop} shows answers of the participants. The columns refer to
 $F2$ was rejected by our participants because the region of the commit that triggered a match is a generated code. Although this generated code was pushed into the repositories as part of bug fixing commit, the root cause of the bug lies in the code generator itself. Our proposed fix suggests to update the generated code. Because the proposed fix did not apply directly to the and the question we ask our reviewers was _"Is the proposed fix applicable in the given situation?"_ they rejected it.
 In this occurrence, the proposed fix was not applicable.
 
-$F4$ was accepted by two reviewers and marked as unsure by the other participants. We believe that this was due the lack of context surrounding the proposed fix. The participants were unable to determine if the fix was applicable or not without knowing what the original intent of the buggy commit was. In our review session, we only provided the reviewers with the regions of the commits that matched existing commits and not the full commit. Full commits can be quite lengthy as they can contain asset descriptions and generated code, in addition to the actual code. In this occurrence, the full context of the commit might have helped our reviewers to decide if the $F4$ was applicable or not. $F5$ and $F7$ were classified as unsure by all our participants for the same reasons.
+$F4$ was accepted by two reviewers and marked as unsure by the other participants. We believe that this was due the lack of context surrounding the proposed fix. The participants were unable to determine if the fix was applicable or not without knowing what the original intent of the buggy commit was. In our review session, we only provided the reviewers with the regions of the commits that matched existing commits and not the full commit. Full commits can be quite lengthy as they can contain asset descriptions and generated code, in addition to the actual code. In this occurrence, the full context of the commit might have helped our reviewers to decide if $F4$ was applicable or not. $F5$ and $F7$ were classified as unsure by all our participants for the same reasons.
 
 $F8$ was rejected by four of participants and accepted by two. The participant argued that the proposed fix was more a refactoring opportunity than an actual fix.
 
-$F12$ was marked as unsure by all the reviewers because the code had to do with a subsystem that is maintained by another team and the participants felt that it was out of scope of this session focusing on their system.
+$F12$ was marked as unsure by all the reviewers because the code had to do with a subsystem that is maintained by another team and the participants felt that it was out of scope of this session.
 
 After the session, we asked the participants two additional questions: _Will you use CLEVER in the future?_ and _What aspects of CLEVER need to be improved?_
 
-The participants answered the first question positively. They all agreed that CLEVER could be a good tool for intercepting risky commits, and hence improving the quality assurance process. For the second question, the participants expressed concerns about the context surrounding the buggy commits and the fixes. While displaying the entire commits is not a solution, according to the participants, some context might be inferred from the commit messages and the issues associated with the fixes in the bug tracking systems. The second limitation of CLEVER is its inability to deal with generated code. At this point, CLEVER points towards the  generated code rather than the code generator. These aspects of CLEVER needs to be improved.
+All the participants answered the first question favourably. They also proposed to embed CLEVER with Ubisoft's quality assurance tool suite. The participants reported that the most useful aspects of Clever are:
+
+- Ability to leverage many years of historical data of inter-related projects, hence allowing development teams to share their experiences in fixing bugs. 
+- Easy integration of CLEVER into  developers' work flow based on the tool's ability to operate at commit-time.  
+- Precision and recall of the tool (79% and 65% respectively) demonstrating CLEVER's capabilities to catch many defects that would otherwise end up in the code repository. 
+
+For the second question, the participants proposed to add a feedback loop to Clever where the input of software developers is taken into account during classification. The objective is to reduce the number of false negatives (risky commits that are flagged as non-risky) and false positives (non-risky commits that are flagged as risky). The feedback loop mechanism would work as follows: When a commit is misclassified by the tool, the software developer receiving the proposition will not use it. 
+If the fix proposition is not used, then, we would give that particular pattern less strengh over other patterns automatically.
+Indeed, we do not need manual input for this stage as CLEVER knowns the state of the commit before the proposal and after. 
+If both version of (i.e. before and after the proposal) are identical we can mark the proposition as not helpfull.
+We can also compensate for human error (i.e. a developper not using a proposition when s/he should have) if the commit was indeed introducing a defect. 
+We would know this by using the same processes that allowed us to build our database of defect-commits as described in section \ref{sec:offline}.
+
+This feature is currently being added to CLEVER. We are also investigating the use of adaptive learning techniques to improve the classification mechanism of CLEVER. In addition to this, the participants discussed the limitation of CLEVER as to its inability to deal with automatically generated code. We are currently working with Ubisoft's developers to address this limitation.
+
+## Deployment of CLEVER at Ubisoft
+
+CLEVER is now beginning to be rolled out at Ubisoft. It will be made available to thousands of developers across various divisions. Our research team provided on-site training of this new tool. In addition, Ubisoft developed an instructional video to support the launch of CLEVER and raise awareness about the tool. Our research team is currently monitoring the use of CLEVER at Ubisoft to evaluate its adoption (usage, barriers, etc.).
 
 # Discussion {#sec:threats}
 
-In this section, we propose a discussion on limitations and threats to validity.
+In this section, we share the lessons learned, discuss the limitations of CLEVER, and present threats to validity of our study.
+
+## Lessons Learned
+
+### Understanding the industrial context: 
+Throughout the design of CLEVER, we made many design decisions that were triggered by the discussions we had with Ubisoft developers. Some of the key decisions that we made included having CLEVER operate on clusters of  inter-related systems and  combining metric-based and code matching techniques into a two-phases approach. These decisions were not only critical in obtaining an improved accuracy, but also in proposing effective fixes that guide developers. From our interactions with Ubisoft developers, it was also important for us  to come up with a solution that integrates well with the workflow of Ubisoft developers.  This motivated the use of commit-time and the integration of CLEVER with Ubisoft version control systems.  The key lesson here is the importance of understanding the industrial context by working with the company's development teams. This collaboration is also an enabler for the adoption of tools, developed in the context of research projects. 
+
+### Leveraging an iterative process: 
+Throughout this research project, we followed an iterative and incremental process. The results of each iteration were presented to Ubisoft developers for feedback. Adjustments were made as needed, before the subsequent iteration started. This process was not only  helpful in keeping the project on track, but also in producing "quick wins" as a way of showing practical results from each iteration. Examples of such "quick wins" 
+
+### Communicating effectively: 
+During the development of CLEVER, we needed to constantly communicate the steps of our research to developers and project owners. It was important to adopt a communication strategy suitable to each stakeholder. For example, in our meetings with management, we focused more on the ability of CLEVER to improve code quality and reduce maintenance costs instead of the technical details of the proposed approach. Developers, on the other hand, were interested in the potential of CLEVER and its integration with their work environment.  
+
+### Underestimating the time needed for full deployment of CLEVER: 
+
+Part of our mandate was to develop a working tool. It took a tremendous amount of time and effort to bring CLEVER to a production level and integrate it with Ubisoft tool suite. Most of the work involved was pure engineering work that went beyond research. We recognize that we underestimated the complexity of this task. Examples of deliverables we had to produce include automating the acquisition of new commits, presenting the recommendations to the developers, building grammars for various programming languages, creating APIs that interact with any types of client systems, authentication and authorization of end-users, etc. Overall, the machine learning code represents less than 5% of our code base. 
+The lesson here is to manage expectations and to better estimate the project time and effort from an end to end perspective, and not only the research part. 
 
 ## Limitations
 
 We identified two main limitations of our approach, CLEVER, which require further studies.
 
-CLEVER is designed to work on multiple related systems. Applying CLEVER on a single system will most likely be less effective. The the two-phases classification process of CLEVER would be hindered by the fact that it is unlikely to have a large number of similar bugs within the same system. For single systems, we recommend the use of metric-based models. A metric-based solution, however, may turn to be ineffective when applied across systems because of the difficulty associated with identifying common thresholds that are applicable to a wide range of systems.
+CLEVER is designed to work on multiple related systems. Applying CLEVER to a single system will most likely be less effective. The two-phases classification process of CLEVER would be hindered by the fact that it is unlikely to have a large number of similar bugs within the same system. For single systems, we recommend the use of metric-based models. A metric-based solution, however, may turn to be ineffective when applied across systems because of the difficulty associated with identifying common thresholds that are applicable to a wide range of systems.
 
 The second limitation we identified has to do with the fact that CLEVER is designed to work with Ubisoft systems. Ubisoft uses C\#, C, C++, Java and other internally developed languages. It is however common to have  other languages used in an environment with many inter-related systems. We intend to extend CLEVER to process commits from other languages as well.
 
@@ -304,7 +337,7 @@ In conclusion, internal and external validity have both been minimized by choosi
 # Conclusion {#sec:conclusion}
 
 In this paper, we presented CLEVER (Combining Levels of Bug Prevention and Resolution Techniques), an approach that detects risky commits (i.e., a commit that is likely to introduce a bug) with an average of 79.10% precision and a 65.61% recall.
-CLEVER combines code metrics, clone detection techniques, and project dependency analysis to detect risky commits within and across projects.  CLEVER operates at commit-time, i.e., before the commits reach the central code repository. Also, because it relies on code comparison, CLEVER does not only detect risky commits but also makes recommendations to developers on how to fix them. We believe that this makes CLEVER a practical approach for preventing bugs and proposing corrective measures that integrate well with the developer's workflow through the commit mechanism.
+CLEVER combines code metrics, clone detection techniques, and project dependency analysis to detect risky commits within and across projects.  CLEVER operates at commit-time, i.e., before the commits reach the central code repository. Also, because it relies on code comparison, CLEVER does not only detect risky commits but also makes recommendations to developers on how to fix them. We believe that this makes CLEVER a practical approach for preventing bugs and proposing corrective measures that integrate well with the developer's workflow through the commit mechanism. CLEVER is not fully operational at Ubisoft and made available to thousands of developers.
 
 As future work, we want to build a feedback loop between the users and the clusters of known buggy commits and their fixes.
 If a fix is never used by the end-users, then we could remove it from the clusters and improve our accuracy. We also intend to improve CLEVER to deal with generated code. Moreover, we will investigate how to improve the fixes proposed by CLEVER to add contextual information to help developers better assess the applicability of the fixes.
@@ -317,7 +350,12 @@ However, the CLEVER source code is in the process of being open-sourced and will
 \begin{acks}
 We are thankful to the software development team at  Ubisoft for their participations to the study and their assessment of the effectiveness of CLEVER.
 \end{acks}
-\vfill\eject
+
+
+\newpage
+\clearpage 
+
 \section*{References}
+
 <!-- End Footnotes text -->
 \setlength{\parindent}{0pt} 
