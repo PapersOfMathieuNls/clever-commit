@@ -10,6 +10,7 @@
 \usepackage{pdflscape}
 \usepackage{float}
 \usepackage{amssymb}
+\usepackage{flushend}
 
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\wahab}[1]{\textcolor{blue}{\\ \\Wahab: #1}}
@@ -229,7 +230,6 @@ $abstract$
 
 \vspace{1.5cm}
 $body$
-
 
 
 \bibliographystyle{ACM-Reference-Format}
