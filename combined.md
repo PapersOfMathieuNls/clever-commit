@@ -281,22 +281,36 @@ All the participants answered the first question favourably. They also proposed 
 - Ability to leverage many years of historical data of inter-related projects, hence allowing development teams to share their experiences in fixing bugs. 
 - Easy integration of CLEVER into  developers' work flow based on the tool's ability to operate at commit-time.  
 - Precision and recall of the tool (79% and 65% respectively) demonstrating CLEVER's capabilities to catch many defects that would otherwise end up in the code repository. 
+For the second question, the participants proposed to add a feedback
+loop to CLEVER where the input of software developers is taken into
+account during classification. The objective is to reduce the number of
+false negatives (risky commits that are flagged as non-risky) and false
+positives (non-risky commits that are flagged as risky). The feedback
+loop mechanism would work as follows: When a commit is misclassified by
+the tool, the software developer can choose to ignore CLEVER's
+recommendation and report the misclassified commit. If the fix
+proposition is not used, then, we would give that particular pattern
+less strength over other patterns automatically. 
 
-For the second question, the participants proposed to add a feedback loop to CLEVER where the input of software developers is taken into account during classification. The objective is to reduce the number of false negatives (risky commits that are flagged as non-risky) and false positives (non-risky commits that are flagged as risky). The feedback loop mechanism would work as follows: 
-When a commit is misclassified by the tool, the software developer can choose to ignore CLEVER's recommendation and report the misclassified commit. 
-If the fix proposition is not used, then, we would give that particular pattern less strength over other patterns automatically.
-Indeed, we do not need manual input for this stage as CLEVER knowns the state of the commit before the proposal and after. 
-If both version of (i.e. before and after the proposal) are identical we can mark the proposition as not helpful.
-We can also compensate for human error (i.e. a developer not using a proposition when s/he should have) if the commit was indeed introducing a defect. 
-We would know this by using the same processes that allowed us to build our database of defect-commits as described in section \ref{sec:offline}.
+We do not need manual input from the user because CLEVER knows the state of the commit before the recommendation
+and after. If both versions are
+identical then we can mark the recommendation as not helpful. This way, we can also
+compensate for human error (i.e., a developer rejecting CLEVER recommendation when the commit was indeed introducing
+a defect. We would know this by using the same processes that
+allowed us to build our database of defect-commits as described in
+Section \ref{sec:offline}. This feature is currently under development.
+ 
+It is worth noting that Ubisoft developers who participated to this study did not think that CLEVER fixes that were 
+deemed irrelevant were a barrier to the deployment of CLEVER. In their
+point of view, the performance of CLEVER in terms of classification
+should make a significant impact as suspicious commits
+will receive extended reviews and/or further investigations.
 
-
-
-This feature is currently being added to CLEVER and we intend to report on its performances in the future. 
-
-It is noteworthy that Ubisoft’s developers participating to the workshop did not think that the amount of non-relevant fix propositions was preventing CLEVER to be deployed in production. In their point of view, the performances of CLEVER in terms of classification will already make a significative impact as suspicious commits will receive extended reviews and/or further investigations.
-
-We are also investigating the use of adaptive learning techniques to improve the classification mechanism of CLEVER. In addition to this, the participants discussed the limitation of CLEVER as to its inability to deal with automatically generated code. We are currently working with Ubisoft's developers to address this limitation.
+We are also investigating the use of adaptive learning techniques to
+improve the classification mechanism of CLEVER. In addition to this, the
+participants discussed the limitation of CLEVER as to its inability to
+deal with automatically generated code. We are currently working with
+Ubisoft's developers to address this limitation.
 
 ## Deployment of CLEVER at Ubisoft
 
@@ -313,7 +327,7 @@ Throughout the design of CLEVER, we made many design decisions that were trigger
 
 ### Leveraging an iterative process: 
 Throughout this research project, we followed an iterative and incremental process. The results of each iteration were presented to Ubisoft developers for feedback. Adjustments were made as needed, before the subsequent iteration started. This process was not only  helpful in keeping the project on track, but also in producing "quick wins" as a way of showing practical results from each iteration. Examples of such "quick wins" include the creation of the defect introduction landscape at Ubisoft in terms of number defects, time to fix defects and time to discover defects organization wide.
-In addition, the computed cluster of similar projects turned out to be useful for upper management in order to organize collaborations between teams belonging to different projects.
+In addition, the computed clusters of similar projects turned out to be useful for upper management in order to organize collaborations between teams belonging to different projects.
 
 ### Communicating effectively: 
 During the development of CLEVER, we needed to constantly communicate the steps of our research to developers and project owners. It was important to adopt a communication strategy suitable to each stakeholder. For example, in our meetings with management, we focused more on the ability of CLEVER to improve code quality and reduce maintenance costs instead of the technical details of the proposed approach. Developers, on the other hand, were interested in the potential of CLEVER and its integration with their work environment.  
