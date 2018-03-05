@@ -169,23 +169,19 @@ $endif$
 \begin{document}
 
 $if(title)$
-\title{$title$}
+\title{$title$\vspace{0.5cm}}
 $endif$
 
-\author{Double Blind Review}
+$for(author)$
+\author{$author.name$}
 \affiliation{%
-  \institution{}
- \streetaddress{}
-  \city{} 
-  \state{} 
-  \postcode{}
+  \institution{$author.affiliation$}
+  \streetaddress{$author.location$}
 }
-\email{}
-
+\email{$author.email$}
+$endfor$
 
 \renewcommand{\shorttitle}{Combining Code Metrics With Clone Detection For Faults Prevention and Resolution}
-
-
 
 \begin{abstract}
 $abstract$
@@ -222,13 +218,8 @@ $abstract$
 
 \keywords{Defect Predictions, Fault Fixing, Software Maintenance, Software Evolution}
 
-
-\vspace{1.5cm}
-
 \maketitle
 
-
-\vspace{1.5cm}
 $body$
 
 

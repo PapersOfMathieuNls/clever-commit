@@ -1,1 +1,1 @@
-pandoc -s -S --filter pandoc-citeproc --number-sections --template="config/default.latex" -o combined.md.pdf combined.md
+pandoc -s -S --filter pandoc-citeproc --number-sections --template="config/default.latex" -o combined.tex combined.md
