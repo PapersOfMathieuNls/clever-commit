@@ -82,8 +82,6 @@
                 <group delimiter=", " prefix="(" suffix=")">
                   <text variable="publisher-place"/>
                   <date variable="issued">
-                    <date-part name="month" form="short" suffix=" "/>
-                    <date-part name="year"/>
                   </date>
                 </group>
                 <text variable="page"/>
